@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+{% load static currency_tags %}
+
+{% block title %}हमारे बारे में (About Us) | गाँव की बगिया{% endblock %}
+
+{% block content %}
+<!-- Header Banner -->
+<section class="bg-bagiya-dark text-white py-5">
+  <div class="container text-center py-3">
+    <span class="badge bg-success-subtle text-success px-3 py-2 rounded-pill fw-bold mb-2">गाँव की साझी मुहिम</span>
+    <h1 class="display-5 fw-bold text-white mb-2">हमारे बारे में (About Ganv Ki Bagiya)</h1>
+    <p class="lead text-white-50 mx-auto" style="max-width: 650px;">
+      गाँव की बंजर ज़मीन को हरा-भरा बनाने और हमारे बुजुर्गों की आरामगाह (कब्रिस्तान) को साफ़-सुथरा व सुरक्षित रखने की मुहिम।
+    </p>
+  </div>
+</section>
+
+<section class="py-5">
+  <div class="container">
+    <div class="row g-5 align-items-center mb-5">
+      <div class="col-lg-6">
+        <h2 class="fw-bold text-bagiya-dark mb-3">हमारा मकसद (Mission)</h2>
+        <p class="text-muted fs-6 lh-base mb-3">
+          {{ site_settings.about_text|default:"गाँव की बगिया एक गाँव-स्तरीय साझी पहल है जिसका मकसद बंजर ज़मीन को सुंदर, छायादार बगिया बनाना और कब्रिस्तान की पक्की चारदीवारी, पानी, लाइट और साफ़-सफ़ाई की पक्की व्यवस्था करना है।" }}
+        </p>
+        <p class="text-muted fs-6 lh-base mb-4">
+          हमारा मुख्य सिद्धांत <strong>"पाई-पाई का साफ़ हिसाब और खुली किताब"</strong> है। कमेटी में आए हर एक रुपये का डिजिटल रिकॉर्ड रखा जाता है ताकि हर दानदाता यह जान सके कि उसका पैसा कहाँ और किस काम में लगा है।
+        </p>
+
+        <div class="row g-3">
+          <div class="col-sm-6">
+            <div class="p-3 bg-white rounded-3 border border-success border-opacity-25 h-100">
+              <i class="bi bi-tree-fill fs-2 text-success mb-2 d-block"></i>
+              <h6 class="fw-bold text-bagiya-dark">बगिया विकास का लक्ष्य</h6>
+              <small class="text-muted">1000+ पौधे, घास का लॉन, बच्चों के झूले, छायादार बैठक और पक्षियों के लिए पानी की व्यवस्था।</small>
+            </div>
+          </div>
+          <div class="col-sm-6">
+            <div class="p-3 bg-white rounded-3 border border-success border-opacity-25 h-100">
+              <i class="bi bi-shield-lock-fill fs-2 text-success mb-2 d-block"></i>
+              <h6 class="fw-bold text-bagiya-dark">कब्रिस्तान की सुरक्षा का लक्ष्य</h6>
+              <small class="text-muted">मजबूत चारदीवारी और मेन गेट, नियमित सफाई, सोलर लाइट, पानी का बोरिंग और जल-निकासी।</small>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-6">
+        <div class="card card-bagiya p-4 border-0 shadow-lg">
+          <h4 class="fw-bold text-bagiya-dark mb-3 border-bottom pb-2">
+            <i class="bi bi-people-fill text-success me-2"></i>कमेटी के ज़िम्मेदार (Committee)
+          </h4>
+
+          <div class="d-flex align-items-start gap-3 p-3 bg-light rounded-3 mb-3">
+            <div class="rounded-circle bg-success text-white d-flex align-items-center justify-content-center flex-shrink-0" style="width: 50px; height: 50px; font-size: 1.3rem;">
+              <i class="bi bi-person-badge"></i>
+            </div>
+            <div>
+              <span class="badge bg-success-subtle text-success mb-1">कमेटी सदर / अध्यक्ष (President)</span>
+              <h6 class="fw-bold mb-1">{{ site_settings.president_name|default:"जावेद अली (अध्यक्ष)" }}</h6>
+              <p class="small text-muted mb-0 italic">{{ site_settings.president_message|default:"गाँव की भलाई और आने वाली पीढ़ी के लिए हर किसी का साथ बहुत ज़रूरी है। आपके दिए एक-एक रुपये का पूरा हिसाब इस वेबसाइट पर सबके सामने खुला है।" }}</p>
+            </div>
+          </div>
+
+          <div class="d-flex align-items-start gap-3 p-3 bg-light rounded-3 mb-3">
+            <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center flex-shrink-0" style="width: 50px; height: 50px; font-size: 1.3rem;">
+              <i class="bi bi-wallet2"></i>
+            </div>
+            <div>
+              <span class="badge bg-primary-subtle text-primary mb-1">खजांची (Treasurer)</span>
+              <h6 class="fw-bold mb-1">{{ site_settings.treasurer_name|default:"जावेद अली (कोषाध्यक्ष)" }}</h6>
+              <p class="small text-muted mb-0">बैंक, नकद और रोज़ाना के हिसाब-किताब की ज़िम्मेदारी। हर आमदनी और खर्चे का मिलान।</p>
+            </div>
+          </div>
+
+          <div class="d-flex align-items-start gap-3 p-3 bg-light rounded-3 mb-3">
+            <div class="rounded-circle bg-warning text-dark d-flex align-items-center justify-content-center flex-shrink-0" style="width: 50px; height: 50px; font-size: 1.3rem;">
+              <i class="bi bi-tools"></i>
+            </div>
+            <div>
+              <span class="badge bg-warning-subtle text-dark mb-1">काम की देखरेख (Project Manager)</span>
+              <h6 class="fw-bold mb-1">जावेद अली</h6>
+              <p class="small text-muted mb-0">बगिया के विकास, पेड़ लगाने, बाउंड्री वॉल बनाने और रख-रखाव के कामों की सीधी निगरानी।</p>
+            </div>
+          </div>
+
+          <div class="p-3 bg-success-subtle rounded-3 text-center">
+            <span class="small text-success fw-bold d-block mb-1">गाँव वालों का साथ</span>
+            <small class="text-muted">सभी गाँव वाले, नौजवान और गाँव से बाहर या परदेस में रहने वाले सभी साथी।</small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Future Plans Section -->
+    <div class="card card-bagiya p-4 p-md-5 border-0 shadow mb-4">
+      <div class="text-center mb-4">
+        <span class="badge bg-warning-subtle text-dark px-3 py-2 rounded-pill fw-bold mb-2">आगे के काम</span>
+        <h3 class="fw-bold text-bagiya-dark">आगे की योजनाएं (Future Plans)</h3>
+      </div>
+
+      <div class="row g-4">
+        <div class="col-md-4">
+          <div class="border rounded-3 p-3 h-100">
+            <div class="badge bg-success mb-2">पहला काम (स्टेप 1)</div>
+            <h6 class="fw-bold">कब्रिस्तान की चारदीवारी व पक्का गेट</h6>
+            <p class="small text-muted mb-0">जानवरों से सुरक्षा और हिफ़ाज़त के लिए बाउंड्री वॉल और लोहे का मेन गेट।</p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="border rounded-3 p-3 h-100">
+            <div class="badge bg-primary mb-2">दूसरा काम (स्टेप 2)</div>
+            <h6 class="fw-bold">बोरिंग, पानी और सोलर लाइट</h6>
+            <p class="small text-muted mb-0">पानी के लिए समरसेबल पंप, टंकी, पाइपलाइन और रात में रोशनी के लिए सोलर लाइट।</p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="border rounded-3 p-3 h-100">
+            <div class="badge bg-warning text-dark mb-2">तीसरा काम (स्टेप 3)</div>
+            <h6 class="fw-bold">पेड़ लगाना और हरियाली</h6>
+            <p class="small text-muted mb-0">नीम, पीपल, शीशम, जामुन के 500+ छायादार पेड़ और उपयोगी पौधे लगाना।</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

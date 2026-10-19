@@ -1,0 +1,106 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% load static currency_tags %}
+
+{% block page_title %}दानदाता विवरण: {{ donor.name }}{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+  <div class="col-lg-4">
+    <div class="card card-bagiya p-4 border-0 shadow">
+      <div class="text-center mb-3">
+        <div class="rounded-circle bg-success text-white d-inline-flex align-items-center justify-content-center" style="width: 70px; height: 70px; font-size: 2rem;">
+          <i class="bi bi-person-fill"></i>
+        </div>
+        <h4 class="fw-bold text-dark mt-3 mb-1">{{ donor.name }}</h4>
+        <span class="badge {% if donor.is_anonymous %}bg-secondary{% else %}bg-success{% endif %}">
+          {% if donor.is_anonymous %}गुमनाम दानदाता{% else %}सार्वजनिक दानदाता{% endif %}
+        </span>
+      </div>
+
+      <hr>
+
+      <div class="small">
+        <div class="mb-2"><strong>मोबाइल:</strong> {{ donor.phone|default:"उपलब्ध नहीं" }}</div>
+        <div class="mb-2"><strong>ईमेल:</strong> {{ donor.email|default:"उपलब्ध नहीं" }}</div>
+        <div class="mb-2"><strong>पता:</strong> {{ donor.address|default:"उपलब्ध नहीं" }}</div>
+        {% if donor.pan_number %}
+        <div class="mb-2"><strong>PAN नंबर:</strong> <span class="font-monospace">{{ donor.pan_number }}</span></div>
+        {% endif %}
+        {% if donor.notes %}
+        <div class="mb-2"><strong>आंतरिक टिप्पणी:</strong> {{ donor.notes }}</div>
+        {% endif %}
+      </div>
+
+      <div class="p-3 bg-light rounded-3 mt-4 text-center">
+        <div class="text-muted small">कुल सत्यापित योगदान</div>
+        <div class="fs-4 fw-bold text-success">{{ total_given|inr }}</div>
+      </div>
+
+      {% if user.can_manage_finances %}
+      <div class="mt-4">
+        <a href="{% url 'donors:dashboard_edit' donor.pk %}" class="btn btn-outline-primary w-100">
+          <i class="bi bi-pencil me-1"></i> प्रोफाइल संपादित करें
+        </a>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="col-lg-8">
+    <div class="card card-bagiya p-4 border-0 shadow">
+      <h5 class="fw-bold text-bagiya-dark mb-3">दान इतिहास (Donation History)</h5>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0 small">
+          <thead class="table-light">
+            <tr>
+              <th>दिनांक</th>
+              <th>दान ID / रसीद</th>
+              <th>उद्देश्य</th>
+              <th>माध्यम</th>
+              <th class="text-end">राशि</th>
+              <th>स्थिति</th>
+              <th>विवरण</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for d in donations %}
+            <tr>
+              <td>{{ d.donation_date|date:"d M Y" }}</td>
+              <td>
+                <div class="fw-bold">{{ d.receipt_number }}</div>
+                <div class="text-muted" style="font-size: 0.75rem;">{{ d.donation_id }}</div>
+              </td>
+              <td>
+                <span class="badge bg-light text-dark border">{{ d.get_purpose_display }}</span>
+              </td>
+              <td>{{ d.get_payment_method_display }}</td>
+              <td class="text-end fw-bold text-success">{{ d.amount|inr }}</td>
+              <td>
+                {% if d.payment_status == 'CONFIRMED' %}
+                <span class="badge bg-success">सत्यापित</span>
+                {% elif d.payment_status == 'PENDING' %}
+                <span class="badge bg-warning text-dark">प्रतीक्षित</span>
+                {% else %}
+                <span class="badge bg-danger">{{ d.get_payment_status_display }}</span>
+                {% endif %}
+              </td>
+              <td>
+                <a href="{% url 'donations:dashboard_detail' d.donation_id %}" class="btn btn-outline-secondary btn-sm">
+                  <i class="bi bi-eye"></i>
+                </a>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="7" class="text-center py-4 text-muted">
+                इस दानदाता द्वारा अभी कोई दान दर्ज नहीं है।
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

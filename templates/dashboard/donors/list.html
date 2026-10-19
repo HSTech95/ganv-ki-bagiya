@@ -1,0 +1,89 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% load static currency_tags %}
+
+{% block page_title %}दानदाता प्रबंधन (Donor Profiles){% endblock %}
+
+{% block content %}
+<div class="card card-bagiya p-4 border-0 shadow">
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
+      <h4 class="fw-bold text-bagiya-dark mb-1">पंजीकृत दानदाता प्रोफाइल</h4>
+      <p class="text-muted small mb-0">कुल दानदाता: <span class="badge bg-success">{{ total_donors }}</span></p>
+    </div>
+    {% if user.can_manage_finances %}
+    <a href="{% url 'donors:dashboard_create' %}" class="btn btn-bagiya-primary">
+      <i class="bi bi-person-plus me-1"></i> नया दानदाता जोड़ें
+    </a>
+    {% endif %}
+  </div>
+
+  <!-- Search Filter -->
+  <form method="get" class="row g-2 mb-4">
+    <div class="col-md-9">
+      <div class="input-group">
+        <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+        <input type="text" name="search" value="{{ search }}" class="form-control" placeholder="नाम, मोबाइल नंबर, ईमेल या पते से खोजें...">
+      </div>
+    </div>
+    <div class="col-md-3">
+      <button type="submit" class="btn btn-outline-success w-100">खोजें</button>
+    </div>
+  </form>
+
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0 small">
+      <thead class="table-light">
+        <tr>
+          <th>नाम</th>
+          <th>मोबाइल</th>
+          <th>ईमेल / पता</th>
+          <th>गोपनीयता</th>
+          <th class="text-end">कुल योगदान</th>
+          <th class="text-center">कार्रवाई</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for d in page_obj %}
+        <tr>
+          <td>
+            <div class="fw-bold text-dark">{{ d.name }}</div>
+            <div class="text-muted" style="font-size: 0.75rem;">पंजीकृत: {{ d.created_at|date:"d M Y" }}</div>
+          </td>
+          <td>{{ d.phone|default:"—" }}</td>
+          <td>
+            <div>{{ d.email|default:"—" }}</div>
+            <small class="text-muted">{{ d.address|default:"" }}</small>
+          </td>
+          <td>
+            {% if d.is_anonymous %}
+            <span class="badge bg-secondary">गुमनाम (Anonymous)</span>
+            {% else %}
+            <span class="badge bg-info-subtle text-info">सार्वजनिक (Public)</span>
+            {% endif %}
+          </td>
+          <td class="text-end fw-bold text-success">{{ d.total_contributed|inr }}</td>
+          <td class="text-center">
+            <a href="{% url 'donors:dashboard_detail' d.pk %}" class="btn btn-outline-secondary btn-sm" title="विवरण देखें">
+              <i class="bi bi-eye"></i>
+            </a>
+            {% if user.can_manage_finances %}
+            <a href="{% url 'donors:dashboard_edit' d.pk %}" class="btn btn-outline-primary btn-sm ms-1" title="संपादित करें">
+              <i class="bi bi-pencil"></i>
+            </a>
+            {% endif %}
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="6" class="text-center py-4 text-muted">
+            कोई दानदाता रिकॉर्ड नहीं मिला।
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% include 'includes/pagination.html' with page_obj=page_obj %}
+</div>
+{% endblock %}

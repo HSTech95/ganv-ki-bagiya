@@ -1,0 +1,50 @@
+# ==============================================================================
+# Ganv Ki Bagiya — Production .gitignore
+# ==============================================================================
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Django database & media uploads
+db.sqlite3
+db.sqlite3-journal
+media/*
+!media/.gitkeep
+!media/qr_codes/
+!media/qr_codes/**
+staticfiles/
+
+# Environment secrets
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Logs
+*.log
+*.sqlite3
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+
+# IDEs & Editors
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+*.swp
+*.swo
+*~
+
+# OS artifacts
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Temporary scratch
+scratch/

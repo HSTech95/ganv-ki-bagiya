@@ -1,0 +1,58 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% load static %}
+
+{% block page_title %}मेरी प्रोफाइल एवं खाता विवरण{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <div class="card card-bagiya p-4 border-0 shadow">
+      <div class="d-flex align-items-center gap-3 mb-4 border-bottom pb-3">
+        <div class="rounded-circle bg-success text-white d-flex align-items-center justify-content-center" style="width: 60px; height: 60px; font-size: 1.5rem; font-weight: bold;">
+          {{ user.first_name|default:user.username|make_list|first|upper }}
+        </div>
+        <div>
+          <h4 class="fw-bold mb-0 text-bagiya-dark">{{ user.get_full_name|default:user.username }}</h4>
+          <span class="badge bg-success-subtle text-success fs-6">{{ user.get_role_display }}</span>
+          <span class="text-muted small ms-2">सदस्यता दिनांक: {{ user.date_joined|date:"d M Y" }}</span>
+        </div>
+      </div>
+
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label small fw-bold">पहला नाम (First Name)</label>
+            {{ form.first_name }}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small fw-bold">अंतिम नाम (Last Name)</label>
+            {{ form.last_name }}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small fw-bold">ईमेल पता (Email)</label>
+            {{ form.email }}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small fw-bold">मोबाइल नंबर (Phone)</label>
+            {{ form.phone_number }}
+          </div>
+          <div class="col-12">
+            <label class="form-label small fw-bold">गाँव / टोला / पता</label>
+            {{ form.village_address }}
+          </div>
+          <div class="col-12">
+            <label class="form-label small fw-bold">प्रोफाइल फोटो</label>
+            {{ form.profile_photo }}
+          </div>
+          <div class="col-12 mt-4">
+            <button type="submit" class="btn btn-bagiya-primary px-4 py-2">
+              <i class="bi bi-save me-1"></i> प्रोफाइल सुरक्षित करें
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

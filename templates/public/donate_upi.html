@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+{% load static currency_tags %}
+
+{% block title %}UPI पेमेंट एवं QR कोड | गाँव की बगिया{% endblock %}
+
+{% block content %}
+<section class="py-5">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        <div class="card card-bagiya p-4 p-md-5 border-0 shadow-lg text-center">
+          <div class="mb-3">
+            <span class="badge bg-success-subtle text-success px-3 py-2 rounded-pill fw-bold">
+              <i class="bi bi-qr-code me-1"></i> सुरक्षित UPI पेमेंट
+            </span>
+          </div>
+
+          <h2 class="fw-bold text-bagiya-dark mb-1">UPI QR कोड स्कैन करें</h2>
+          <p class="text-muted small mb-4">
+            Donation ID: <strong class="font-monospace text-dark">{{ donation.donation_id }}</strong> &bull;
+            काम / उद्देश्य: <strong>{{ donation.get_purpose_display }}</strong>
+          </p>
+
+          <!-- Amount Display -->
+          <div class="p-3 bg-light rounded-4 d-inline-block mx-auto mb-4 border border-success border-opacity-25" style="min-width: 260px;">
+            <small class="text-muted d-block">दान की रकम</small>
+            <div class="display-6 fw-bold text-success">{{ donation.amount|inr }}</div>
+          </div>
+
+          <!-- Generated QR Code Image -->
+          <div class="mb-4">
+            <div class="p-3 bg-white d-inline-block rounded-4 shadow-sm border border-2 border-success">
+              <img src="{{ qr_data_url }}" alt="UPI QR Code" class="img-fluid" style="width: 240px; height: 240px;">
+            </div>
+            <div class="small text-muted mt-2">
+              <i class="bi bi-phone me-1"></i> Google Pay, PhonePe, Paytm, BHIM या किसी भी UPI ऐप से स्कैन करें
+            </div>
+          </div>
+
+          <!-- Deep link for mobile users -->
+          <div class="d-md-none mb-4">
+            <a href="{{ upi_payload }}" class="btn btn-success btn-lg w-100 py-3 fw-bold">
+              <i class="bi bi-wallet2 me-2"></i> सीधे UPI ऐप में खोलें (Open in UPI App)
+            </a>
+          </div>
+
+          <!-- Copyable UPI Details -->
+          <div class="card bg-light border-0 p-3 mb-4 text-start">
+            <div class="row g-2 align-items-center">
+              <div class="col-sm-8">
+                <div class="mb-1">
+                  <small class="text-muted">खाताधारक (Payee Name):</small>
+                  <strong class="text-dark d-block fs-6">{{ settings.upi_merchant_name|default:"JAVED ALI" }}</strong>
+                </div>
+                <div>
+                  <small class="text-muted">कमेटी की UPI ID (PhonePe):</small>
+                  <span class="fw-bold font-monospace text-success fs-5 d-block">{{ settings.upi_id|default:"8937877789@ybl" }}</span>
+                </div>
+              </div>
+              <div class="col-sm-4 text-sm-end">
+                <button type="button" class="btn btn-outline-success btn-sm btn-copy w-100 w-sm-auto" data-copy="{{ settings.upi_id|default:'8937877789@ybl' }}">
+                  <i class="bi bi-clipboard"></i> UPI ID कॉपी करें
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 2: Submit UTR / Reference -->
+          <div class="card border border-2 border-warning border-opacity-50 p-4 rounded-4 text-start bg-warning-subtle bg-opacity-10">
+            <h5 class="fw-bold text-dark mb-2">
+              <i class="bi bi-check-circle-fill text-warning me-2"></i>स्टेप 2: पेमेंट का UTR नंबर भरें
+            </h5>
+            <p class="small text-muted mb-3">
+              पेमेंट करने के बाद मिला 12 अंकों का <strong>UTR / UPI Transaction ID</strong> नीचे भरें, ताकि कमेटी आपके दान को तुरंत चेक करके पक्का कर सके।
+            </p>
+
+            <form method="post" enctype="multipart/form-data">
+              {% csrf_token %}
+              <div class="row g-3">
+                <div class="col-md-8">
+                  <label class="form-label small fw-bold">12 अंकों का UPI UTR नंबर *</label>
+                  {{ form.transaction_reference }}
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label small fw-bold">स्क्रीनशॉट रसीद (अगर हो तो)</label>
+                  {{ form.payment_proof }}
+                </div>
+                <div class="col-12 mt-3">
+                  <button type="submit" class="btn btn-warning btn-lg w-100 py-2 fw-bold text-dark shadow-sm">
+                    <i class="bi bi-send-check-fill me-1"></i> नंबर जमा करें और रसीद पाएं
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+
+          <div class="mt-4">
+            <a href="{% url 'donations:donate_thankyou' donation.donation_id %}" class="text-muted small text-decoration-none">
+              बाद में नंबर भरें &bull; रसीद देखें &rarr;
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

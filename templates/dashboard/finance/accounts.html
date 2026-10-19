@@ -1,0 +1,116 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% load static currency_tags %}
+
+{% block page_title %}बैंक व नकद खाते (Fund Accounts){% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h4 class="fw-bold text-bagiya-dark mb-0">बैंक एवं नकद खाते (Fund Accounts)</h4>
+    <small class="text-muted">समिति के सभी सक्रिय बैंक खाते, नकद पेटी और ऑनलाइन गेटवे वॉलेट।</small>
+  </div>
+  {% if user.is_super_admin %}
+    <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#newAccountModal">
+      <i class="bi bi-plus-circle me-1"></i> नया खाता जोड़ें
+    </button>
+  {% endif %}
+</div>
+
+<div class="row g-4">
+  {% for acc in accounts %}
+  <div class="col-md-4">
+    <div class="card card-bagiya h-100 p-4 border-0 shadow-sm border-top border-4 border-{% if acc.account_type == 'CASH' %}warning{% elif acc.account_type == 'BANK' %}success{% elif acc.account_type == 'UPI' %}info{% else %}primary{% endif %}">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <span class="badge bg-{% if acc.account_type == 'CASH' %}warning text-dark{% elif acc.account_type == 'BANK' %}success{% elif acc.account_type == 'UPI' %}info text-dark{% else %}primary{% endif %}">
+          {{ acc.get_account_type_display }}
+        </span>
+        {% if acc.is_active %}
+          <span class="badge bg-success-subtle text-success small">सक्रिय</span>
+        {% else %}
+          <span class="badge bg-secondary">निष्क्रिय</span>
+        {% endif %}
+      </div>
+
+      <h5 class="fw-bold text-bagiya-dark mb-1">{{ acc.name }}</h5>
+      <p class="small text-muted mb-3">{{ acc.bank_name|default:"नकद पेटी" }} {% if acc.branch_name %}({{ acc.branch_name }}){% endif %}</p>
+
+      <div class="p-3 bg-light rounded-3 mb-3">
+        <small class="text-muted d-block">वर्तमान बही शेष (Book Balance):</small>
+        <div class="fs-4 fw-extrabold text-success font-monospace">{{ acc.current_balance|inr }}</div>
+      </div>
+
+      
+      {% if acc.account_number %}
+      <div class="small text-muted mb-1">
+        खाता सं: <strong class="font-monospace text-dark">{{ acc.account_number }}</strong>
+      </div>
+      <div class="small text-muted mb-3">
+        IFSC कोड: <strong class="font-monospace text-dark">{{ acc.ifsc_code|default:"-" }}</strong>
+      </div>
+      {% endif %}
+
+      <div class="mt-auto pt-2 border-top">
+        <a href="{% url 'finance:dashboard_ledger' %}?account={{ acc.id }}" class="btn btn-outline-dark btn-sm w-100">
+          <i class="bi bi-journal-text me-1"></i> खाता लेजर देखें
+        </a>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<!-- Modal: New Account Form (Super Admin only) -->
+{% if user.is_super_admin %}
+<div class="modal fade" id="newAccountModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-success text-white">
+        <h5 class="modal-title fw-bold">नया फंड खाता जोड़ें</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <form method="post">
+        {% csrf_token %}
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label small fw-bold">खाते का नाम *</label>
+            {{ form.name }}
+          </div>
+          <div class="mb-3">
+            <label class="form-label small fw-bold">खाते का प्रकार *</label>
+            {{ form.account_type }}
+          </div>
+          <div class="mb-3">
+            <label class="form-label small fw-bold">बैंक का नाम</label>
+            {{ form.bank_name }}
+          </div>
+          <div class="mb-3">
+            <label class="form-label small fw-bold">शाखा</label>
+            {{ form.branch_name }}
+          </div>
+          <div class="mb-3">
+            <label class="form-label small fw-bold">खाता क्रमांक</label>
+            {{ form.account_number }}
+          </div>
+          <div class="mb-3">
+            <label class="form-label small fw-bold">IFSC कोड</label>
+            {{ form.ifsc_code }}
+          </div>
+          <div class="mb-3">
+            <label class="form-label small fw-bold">प्रारंभिक शेष (₹)</label>
+            {{ form.current_balance }}
+          </div>
+          <div class="form-check">
+            {{ form.is_active }}
+            <label class="form-check-label small" for="{{ form.is_active.id_for_label }}">सक्रिय खाता रखें</label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">रद्द करें</button>
+          <button type="submit" class="btn btn-success btn-sm fw-bold">खाता सुरक्षित करें</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

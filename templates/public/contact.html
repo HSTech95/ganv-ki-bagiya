@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}संपर्क करें (Contact Us) | गाँव की बगिया{% endblock %}
+
+{% block content %}
+<section class="bg-bagiya-dark text-white py-5">
+  <div class="container text-center py-2">
+    <span class="badge bg-success-subtle text-success px-3 py-2 rounded-pill fw-bold mb-2">हम हमेशा तैयार हैं</span>
+    <h1 class="display-5 fw-bold text-white mb-2">संपर्क करें (Contact Us)</h1>
+    <p class="lead text-white-50 mx-auto" style="max-width: 650px;">
+      किसी भी सुझाव, दान की जानकारी या सवाल के लिए कमेटी से संपर्क करें।
+    </p>
+  </div>
+</section>
+
+<section class="py-5">
+  <div class="container">
+    <div class="row g-5">
+      
+      <!-- Contact Info Cards -->
+      <div class="col-lg-5">
+        <div class="card card-bagiya p-4 border-0 shadow-sm mb-4">
+          <h4 class="fw-bold text-bagiya-dark mb-4">पता और संपर्क जानकारी</h4>
+
+          <div class="d-flex align-items-start gap-3 mb-3">
+            <div class="stat-icon-wrapper bg-success-subtle text-success flex-shrink-0" style="width: 44px; height: 44px; font-size: 1.2rem;">
+              <i class="bi bi-geo-alt-fill"></i>
+            </div>
+            <div>
+              <div class="fw-bold small text-muted">पता (Address):</div>
+              <p class="mb-0 text-dark">{{ site_settings.address|default:"ग्राम पंचायत भवन, मुख्य सड़क" }}</p>
+            </div>
+          </div>
+
+          <div class="d-flex align-items-start gap-3 mb-3">
+            <div class="stat-icon-wrapper bg-primary-subtle text-primary flex-shrink-0" style="width: 44px; height: 44px; font-size: 1.2rem;">
+              <i class="bi bi-telephone-fill"></i>
+            </div>
+            <div>
+              <div class="fw-bold small text-muted">हेल्पलाइन फ़ोन:</div>
+              <p class="mb-0 text-dark fw-bold">{{ site_settings.contact_phone|default:"+91 89378 77789" }}</p>
+            </div>
+          </div>
+
+          <div class="d-flex align-items-start gap-3 mb-4">
+            <div class="stat-icon-wrapper bg-warning-subtle text-warning flex-shrink-0" style="width: 44px; height: 44px; font-size: 1.2rem;">
+              <i class="bi bi-envelope-fill"></i>
+            </div>
+            <div>
+              <div class="fw-bold small text-muted">ईमेल:</div>
+              <p class="mb-0 text-dark">{{ site_settings.contact_email|default:"alimahi2wins@gmail.com" }}</p>
+            </div>
+          </div>
+
+          {% if site_settings.map_link %}
+          <div class="p-3 bg-light rounded-3 text-center border">
+            <a href="{{ site_settings.map_link }}" target="_blank" class="btn btn-outline-success btn-sm w-100">
+              <i class="bi bi-map-fill me-1"></i> गूगल मैप पर लोकेशन देखें (Google Maps)
+            </a>
+          </div>
+          {% endif %}
+        </div>
+
+        <div class="card card-bagiya p-4 border-0 shadow-sm bg-success-subtle border-success border-opacity-25">
+          <h5 class="fw-bold text-success mb-2"><i class="bi bi-people-fill me-2"></i>कमेटी के ज़िम्मेदार सदस्य</h5>
+          <div class="small text-muted mb-2">
+            सदर / अध्यक्ष: <strong class="text-dark">{{ site_settings.president_name|default:"जावेद अली (अध्यक्ष)" }}</strong>
+          </div>
+          <div class="small text-muted">
+            खजांची: <strong class="text-dark">{{ site_settings.treasurer_name|default:"जावेद अली (कोषाध्यक्ष)" }}</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- Contact & Feedback Form -->
+      <div class="col-lg-7">
+        <div class="card card-bagiya p-4 p-md-5 border-0 shadow-lg">
+          <h3 class="fw-bold text-bagiya-dark mb-2">संदेश या सुझाव भेजें</h3>
+          <p class="small text-muted mb-4">अपनी बात, दान के बारे में सवाल या सुझाव यहाँ लिखें:</p>
+
+          <form method="post">
+            {% csrf_token %}
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label small fw-bold">पूरा नाम *</label>
+                {{ form.name }}
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-bold">मोबाइल नंबर *</label>
+                {{ form.phone }}
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-bold">ईमेल (अगर हो तो)</label>
+                {{ form.email }}
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-bold">संदेश किस बारे में है *</label>
+                {{ form.category }}
+              </div>
+              <div class="col-12">
+                <label class="form-label small fw-bold">विषय (Subject) *</label>
+                {{ form.subject }}
+              </div>
+              <div class="col-12">
+                <label class="form-label small fw-bold">अपनी बात लिखें *</label>
+                {{ form.message }}
+              </div>
+              <div class="col-12 mt-4">
+                <button type="submit" class="btn btn-bagiya-primary btn-lg w-100 py-3 shadow">
+                  <i class="bi bi-send-fill me-2"></i> संदेश भेजें (Send Message)
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+{% endblock %}

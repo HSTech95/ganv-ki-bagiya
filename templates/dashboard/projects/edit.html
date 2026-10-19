@@ -1,0 +1,81 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% load static %}
+
+{% block page_title %}प्रोजेक्ट संपादित करें | {{ project.name }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <div class="card card-bagiya p-4 border-0 shadow">
+      <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
+        <div>
+          <h4 class="fw-bold text-bagiya-dark mb-0">प्रोजेक्ट विवरण संपादित करें</h4>
+          <small class="text-muted">{{ project.name }}</small>
+        </div>
+        <a href="{% url 'projects:dashboard_detail' project.pk %}" class="btn btn-outline-secondary btn-sm">रद्द करें</a>
+      </div>
+
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="row g-3">
+          <div class="col-md-8">
+            <label class="form-label small fw-bold">प्रोजेक्ट का नाम *</label>
+            {{ form.name }}
+          </div>
+          <div class="col-md-4">
+            <label class="form-label small fw-bold">प्रकार (Type) *</label>
+            {{ form.project_type }}
+          </div>
+          <div class="col-12">
+            <label class="form-label small fw-bold">विस्तृत विवरण *</label>
+            {{ form.description }}
+          </div>
+          <div class="col-12">
+            <label class="form-label small fw-bold">मुख्य उद्देश्य</label>
+            {{ form.objectives }}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small fw-bold text-success">अनुमानित बजट (₹) *</label>
+            {{ form.estimated_budget }}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small fw-bold">प्रारंभ तिथि *</label>
+            {{ form.start_date }}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small fw-bold">लक्षित पूर्णता तिथि</label>
+            {{ form.target_completion_date }}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small fw-bold">स्थिति (Status)</label>
+            {{ form.status }}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small fw-bold">प्रगति प्रतिशत (0-100%)</label>
+            {{ form.progress_percentage }}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small fw-bold">प्रभारी प्रोजेक्ट मैनेजर</label>
+            {{ form.manager }}
+          </div>
+          <div class="col-12">
+            <label class="form-label small fw-bold">प्रोजेक्ट फोटो</label>
+            {{ form.featured_image }}
+          </div>
+          <div class="col-12">
+            <div class="form-check">
+              {{ form.is_public }}
+              <label class="form-check-label small" for="{{ form.is_public.id_for_label }}">पब्लिक वेबसाइट पर प्रदर्शित करें</label>
+            </div>
+          </div>
+          <div class="col-12 mt-4">
+            <button type="submit" class="btn btn-bagiya-primary btn-lg w-100 py-3 shadow">
+              <i class="bi bi-save me-1"></i> परिवर्तन सुरक्षित करें
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

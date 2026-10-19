@@ -1,0 +1,232 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% load static currency_tags %}
+
+{% block page_title %}खर्च विवरण एवं स्वीकृति | {{ expense.expense_id }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <a href="{% url 'expenses:dashboard_list' %}" class="btn btn-outline-secondary btn-sm mb-1">
+      <i class="bi bi-arrow-left me-1"></i> समस्त खर्च सूची
+    </a>
+    <h4 class="fw-bold text-bagiya-dark mb-0">खर्च विवरण (Expense Details)</h4>
+  </div>
+  <div class="d-flex gap-2">
+    <span class="badge bg-{% if expense.approval_status == 'APPROVED' %}success{% elif expense.approval_status == 'SUBMITTED' %}warning text-dark{% else %}secondary{% endif %} fs-6 px-3 py-2">
+      स्वीकृति: {{ expense.get_approval_status_display }}
+    </span>
+    <span class="badge bg-{% if expense.payment_status == 'PAID' %}success{% else %}danger{% endif %} fs-6 px-3 py-2">
+      भुगतान: {{ expense.get_payment_status_display }}
+    </span>
+  </div>
+</div>
+
+<div class="row g-4">
+  <!-- Left Column: Expense Info & Bill View -->
+  <div class="col-lg-7">
+    <div class="card card-bagiya p-4 border-0 shadow-sm mb-4">
+      <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-3">
+        <div>
+          <span class="text-muted small">खर्च ID:</span>
+          <h5 class="fw-bold font-monospace text-dark mb-0">{{ expense.expense_id }}</h5>
+        </div>
+        <div class="text-end">
+          <span class="text-muted small d-block">खर्च राशि:</span>
+          <span class="fs-4 fw-extrabold text-danger">{{ expense.amount|inr }}</span>
+        </div>
+      </div>
+
+      <table class="table table-bordered align-middle">
+        <tbody>
+          <tr>
+            <th class="bg-light" style="width: 35%;">विवरण:</th>
+            <td class="fw-bold text-dark">{{ expense.description }}</td>
+          </tr>
+          <tr>
+            <th class="bg-light">श्रेणी:</th>
+            <td><span class="badge bg-light text-dark border">{{ expense.get_category_display }}</span></td>
+          </tr>
+          <tr>
+            <th class="bg-light">संबंधित प्रोजेक्ट:</th>
+            <td>{{ expense.related_project.name|default:"सामान्य कोष (General Fund)" }}</td>
+          </tr>
+          <tr>
+            <th class="bg-light">दुकानदार / प्राप्तकर्ता:</th>
+            <td>
+              <div class="fw-bold">{{ expense.vendor_name }}</div>
+              <small class="text-muted">{{ expense.vendor_phone|default:"-" }}</small>
+            </td>
+          </tr>
+          <tr>
+            <th class="bg-light">बिल / वाउचर क्रमांक:</th>
+            <td class="font-monospace">{{ expense.bill_number|default:"-" }} (तारीख: {{ expense.bill_date|date:"d M Y"|default:"-" }})</td>
+          </tr>
+          <tr>
+            <th class="bg-light">खर्च दिनांक:</th>
+            <td>{{ expense.expense_date|date:"d F Y" }}</td>
+          </tr>
+          <tr>
+            <th class="bg-light">दर्जकर्ता (Recorded By):</th>
+            <td>{{ expense.created_by.get_full_name|default:expense.created_by.username }} ({{ expense.created_at|date:"d M Y, H:i" }})</td>
+          </tr>
+          {% if expense.approved_by %}
+          <tr>
+            <th class="bg-light">स्वीकृति विवरण:</th>
+            <td>
+              <strong class="text-success">{{ expense.approved_by.get_full_name|default:expense.approved_by.username }}</strong>
+              <small class="text-muted d-block">{{ expense.approval_date|date:"d M Y, H:i" }}</small>
+              {% if expense.approval_notes %}
+                <small class="text-muted d-block fst-italic">"{{ expense.approval_notes }}"</small>
+              {% endif %}
+            </td>
+          </tr>
+          {% endif %}
+          {% if expense.payment_status == 'PAID' %}
+          <tr>
+            <th class="bg-light">भुगतान खाता व माध्यम:</th>
+            <td>
+              <strong class="text-primary">{{ expense.paid_from_account.name }}</strong>
+              <div class="small text-muted">माध्यम: {{ expense.payment_method }} &bull; Ref: {{ expense.payment_reference }}</div>
+              <small class="text-muted">तारीख: {{ expense.paid_date|date:"d F Y" }}</small>
+            </td>
+          </tr>
+          {% endif %}
+        </tbody>
+      </table>
+
+      <!-- Uploaded Bill / Voucher -->
+      <div class="mt-4 pt-3 border-top">
+        <h6 class="fw-bold text-bagiya-dark mb-3">संलग्न बिल / कैश मेमो (Attached Bill)</h6>
+        {% if expense.bill_file %}
+          <div class="p-3 bg-light rounded text-center border">
+            <a href="{{ expense.bill_file.url }}" target="_blank">
+              <img src="{{ expense.bill_file.url }}" class="img-fluid rounded shadow-sm" style="max-height: 350px;" alt="Bill File">
+            </a>
+            <div class="mt-2">
+              <a href="{{ expense.bill_file.url }}" target="_blank" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-box-arrow-up-right me-1"></i> पूर्ण फ़ाइल डाउनलोड / देखें
+              </a>
+            </div>
+          </div>
+        {% else %}
+          <div class="alert alert-warning small mb-0">
+            <i class="bi bi-exclamation-triangle me-1"></i> इस खर्च के साथ कोई बिल फ़ाइल संलग्न नहीं है।
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Column: Workflow Actions (Approval & Payment Execution) -->
+  <div class="col-lg-5">
+    
+    <!-- 1. Review & Approval Box (Committee President / Super Admin) -->
+    {% if expense.approval_status == 'SUBMITTED' or expense.approval_status == 'DRAFT' %}
+      {% if can_user_approve %}
+      <div class="card card-bagiya p-4 border-2 border-warning shadow-sm mb-4 bg-warning-subtle bg-opacity-25">
+        <h5 class="fw-bold text-dark mb-2">
+          <i class="bi bi-stamp text-warning me-2"></i>समिति समीक्षा एवं स्वीकृति (Approval)
+        </h5>
+        <p class="small text-muted mb-3">
+          सदर / अध्यक्ष द्वारा बिल व राशि की जाँच उपरांत स्वीकृति दी जाए।
+        </p>
+
+        <form method="post" action="{% url 'expenses:dashboard_approve' expense.expense_id %}">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label class="form-label small fw-bold">निर्णय (Decision):</label>
+            <div class="d-flex gap-3">
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="decision" id="approveRadio" value="APPROVED" checked>
+                <label class="form-check-label fw-bold text-success" for="approveRadio">स्वीकृत करें (Approve)</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="decision" id="rejectRadio" value="REJECTED">
+                <label class="form-check-label fw-bold text-danger" for="rejectRadio">अस्वीकृत करें (Reject)</label>
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label small fw-bold">समीक्षा टिप्पणी / कारण (Remarks):</label>
+            {{ approval_form.comments }}
+          </div>
+
+          <button type="submit" class="btn btn-warning w-100 py-2 fw-bold text-dark shadow-sm">
+            <i class="bi bi-check-lg me-1"></i> निर्णय दर्ज करें
+          </button>
+        </form>
+      </div>
+      {% elif expense.created_by == user and not user.is_superuser %}
+      <div class="alert alert-info border-info small mb-4">
+        <i class="bi bi-info-circle-fill me-1"></i>
+        <strong>नियम:</strong> यह खर्च आपने स्वयं दर्ज किया है, अतः वित्तीय निष्पक्षता हेतु इसका अनुमोदन समिति के अन्य अधिकृत पदाधिकारी (सदर/अध्यक्ष) द्वारा किया जाएगा।
+      </div>
+      {% endif %}
+    {% endif %}
+
+    <!-- 2. Payment Execution Box (Treasurer / Super Admin) -->
+    {% if expense.approval_status == 'APPROVED' and expense.payment_status == 'UNPAID' %}
+      {% if user.can_manage_finances %}
+      <div class="card card-bagiya p-4 border-2 border-success shadow-sm mb-4 bg-success-subtle bg-opacity-25">
+        <h5 class="fw-bold text-success mb-2">
+          <i class="bi bi-cash-stack text-success me-2"></i>भुगतान संवितरण (Record Payment)
+        </h5>
+        <p class="small text-muted mb-3">
+          स्वीकृत राशि <strong>{{ expense.amount|inr }}</strong> का वास्तविक भुगतान नकद पेटी अथवा बैंक खाते से दर्ज करें। भुगतान होते ही फंड बैलेंस घटेगा और लेजर प्रविष्टि स्वतः हो जाएगी।
+        </p>
+
+        <form method="post" action="{% url 'expenses:dashboard_pay' expense.expense_id %}">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label class="form-label small fw-bold">भुगतान खाता (Source Account) *</label>
+            {{ payment_form.paid_from_account }}
+          </div>
+          <div class="mb-3">
+            <label class="form-label small fw-bold">भुगतान माध्यम *</label>
+            {{ payment_form.payment_method }}
+          </div>
+          <div class="mb-3">
+            <label class="form-label small fw-bold">रेफरेंस / चेक / नकद वाउचर नंबर *</label>
+            {{ payment_form.payment_reference }}
+          </div>
+          <div class="mb-3">
+            <label class="form-label small fw-bold">भुगतान दिनांक *</label>
+            {{ payment_form.paid_date }}
+          </div>
+
+          <button type="submit" class="btn btn-success w-100 py-3 fw-bold shadow" onclick="return confirm('क्या आप सुनिश्चित हैं कि ₹{{ expense.amount }} का भुगतान कर दिया गया है? खाते से यह राशि कम हो जाएगी।');">
+            <i class="bi bi-check-circle-fill me-1"></i> भुगतान दर्ज करें एवं लेजर अपडेट करें
+          </button>
+        </form>
+      </div>
+      {% else %}
+      <div class="alert alert-warning small mb-4">
+        खर्च स्वीकृत है परन्तु भुगतान दर्ज करने का अधिकार केवल खजांची/कोषाध्यक्ष के पास है।
+      </div>
+      {% endif %}
+    {% endif %}
+
+    <!-- 3. Audit History of Approvals -->
+    <div class="card card-bagiya p-4 border-0 shadow-sm">
+      <h6 class="fw-bold text-bagiya-dark mb-3">
+        <i class="bi bi-journal-text me-1"></i>ऑडिट इतिहास (Approval Log)
+      </h6>
+      <ul class="list-unstyled small mb-0">
+        {% for log in expense.approval_logs.all %}
+        <li class="border-start border-2 border-success ps-3 pb-2 mb-2">
+          <div class="fw-bold text-dark">{{ log.action }}</div>
+          <small class="text-muted d-block">{{ log.user.username }} &bull; {{ log.timestamp|date:"d M Y, H:i" }}</small>
+          {% if log.comments %}
+            <div class="small fst-italic text-secondary mt-1">"{{ log.comments }}"</div>
+          {% endif %}
+        </li>
+        {% empty %}
+        <li class="text-muted">कोई लॉग उपलब्ध नहीं।</li>
+        {% endfor %}
+      </ul>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

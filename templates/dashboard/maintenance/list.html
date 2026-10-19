@@ -1,0 +1,109 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% load static %}
+
+{% block page_title %}रख-रखाव व सफाई प्रबंधन (Maintenance){% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h4 class="fw-bold text-bagiya-dark mb-0">रख-रखाव, सफाई एवं सिंचाई कार्य सूची</h4>
+    <small class="text-muted">बगिया एवं कब्रिस्तान के नियमित एवं विशेष कार्यों का प्रबंधन व स्वयंसेवक आवंटन।</small>
+  </div>
+  <a href="{% url 'maintenance:dashboard_create' %}" class="btn btn-primary btn-sm">
+    <i class="bi bi-calendar-plus me-1"></i> नया कार्य शेड्यूल करें
+  </a>
+</div>
+
+<!-- Filters -->
+<div class="card card-bagiya p-3 border-0 shadow-sm mb-4">
+  <form method="get" class="row g-2 align-items-center">
+    <div class="col-md-3">
+      <select name="facility" class="form-select form-select-sm">
+        <option value="">-- समस्त स्थल (Facilities) --</option>
+        {% for code, label in facilities %}
+          <option value="{{ code }}" {% if facility_filter == code %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-3">
+      <select name="status" class="form-select form-select-sm">
+        <option value="">-- समस्त स्थितियां --</option>
+        {% for code, label in statuses %}
+          <option value="{{ code }}" {% if status_filter == code %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-3">
+      <select name="priority" class="form-select form-select-sm">
+        <option value="">-- प्राथमिकता --</option>
+        {% for code, label in priorities %}
+          <option value="{{ code }}" {% if priority_filter == code %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-3 d-flex gap-2">
+      <button type="submit" class="btn btn-bagiya-primary btn-sm flex-grow-1"><i class="bi bi-filter"></i> फिल्टर</button>
+      <a href="{% url 'maintenance:dashboard_list' %}" class="btn btn-outline-secondary btn-sm">रीसेट</a>
+    </div>
+  </form>
+</div>
+
+<!-- Table -->
+<div class="card card-bagiya border-0 shadow-sm">
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead class="table-light">
+        <tr>
+          <th>तारीख</th>
+          <th>कार्य शीर्षक</th>
+          <th>स्थल (Facility)</th>
+          <th>कार्य प्रकार</th>
+          <th>प्राथमिकता</th>
+          <th>आवंटित स्वयंसेवक</th>
+          <th>स्थिति</th>
+          <th class="text-center">कार्रवाई</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for t in tasks %}
+        <tr>
+          <td class="small text-muted">{{ t.scheduled_date|date:"d M Y" }}</td>
+          <td>
+            <div class="fw-bold text-dark">{{ t.title }}</div>
+            {% if t.frequency != 'ONE_TIME' %}
+              <span class="badge bg-light text-muted border">{{ t.get_frequency_display }}</span>
+            {% endif %}
+          </td>
+          <td><span class="badge bg-light text-dark border">{{ t.get_facility_display }}</span></td>
+          <td class="small">{{ t.get_task_type_display }}</td>
+          <td>
+            <span class="badge bg-{% if t.priority == 'URGENT' %}danger{% elif t.priority == 'HIGH' %}warning text-dark{% else %}secondary{% endif %}">
+              {{ t.get_priority_display }}
+            </span>
+          </td>
+          <td class="small">
+            {% if t.assigned_volunteer %}
+              <i class="bi bi-person text-success me-1"></i>{{ t.assigned_volunteer.get_full_name|default:t.assigned_volunteer.username }}
+            {% else %}
+              <span class="text-muted fst-italic">अनआवंटित</span>
+            {% endif %}
+          </td>
+          <td>
+            <span class="badge bg-{% if t.status == 'COMPLETED' %}success{% elif t.status == 'IN_PROGRESS' %}primary{% else %}warning text-dark{% endif %}">
+              {{ t.get_status_display }}
+            </span>
+          </td>
+          <td class="text-center">
+            <a href="{% url 'maintenance:dashboard_detail' t.pk %}" class="btn btn-outline-dark btn-sm">
+              <i class="bi bi-eye"></i>
+            </a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="8" class="text-center py-5 text-muted">कोई रख-रखाव कार्य नहीं मिला।</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

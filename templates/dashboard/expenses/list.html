@@ -1,0 +1,151 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% load static currency_tags %}
+
+{% block page_title %}खर्च एवं भुगतान प्रबंधन (Expenses Register){% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+  <div>
+    <h4 class="fw-bold text-bagiya-dark mb-0">खर्च एवं संवितरण रजिस्टर (Expenses)</h4>
+    <small class="text-muted">बगिया व कब्रिस्तान के सभी निर्माण, सामग्री व मजदूरी खर्चों का हिसाब।</small>
+  </div>
+  <div class="d-flex gap-2">
+    <a href="{% url 'expenses:dashboard_create' %}" class="btn btn-danger btn-sm">
+      <i class="bi bi-dash-circle me-1"></i> नया खर्च दर्ज करें
+    </a>
+    <a href="{% url 'reports:expenses_excel' %}" class="btn btn-outline-success btn-sm">
+      <i class="bi bi-file-earmark-excel me-1"></i> Excel डाउनलोड
+    </a>
+    <a href="{% url 'reports:expenses_csv' %}" class="btn btn-outline-secondary btn-sm">
+      <i class="bi bi-filetype-csv me-1"></i> CSV
+    </a>
+  </div>
+</div>
+
+<!-- Search & Filters -->
+<div class="card card-bagiya p-3 border-0 shadow-sm mb-4">
+  <form method="get" class="row g-2 align-items-center">
+    <div class="col-md-3">
+      <input type="text" name="search" value="{{ search }}" class="form-control form-control-sm" placeholder="विवरण, दुकानदार, बिल सं. खोजें...">
+    </div>
+    <div class="col-md-3">
+      <select name="approval" class="form-select form-select-sm">
+        <option value="">-- समस्त स्वीकृति स्थितियां --</option>
+        {% for code, label in approval_statuses %}
+          <option value="{{ code }}" {% if approval_filter == code %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-2">
+      <select name="payment" class="form-select form-select-sm">
+        <option value="">-- भुगतान स्थिति --</option>
+        {% for code, label in payment_statuses %}
+          <option value="{{ code }}" {% if payment_filter == code %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-2">
+      <select name="category" class="form-select form-select-sm">
+        <option value="">-- खर्च श्रेणी --</option>
+        {% for code, label in categories %}
+          <option value="{{ code }}" {% if category_filter == code %}selected{% endif %}>{{ label|truncatewords:2 }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-2 d-flex gap-1">
+      <button type="submit" class="btn btn-bagiya-primary btn-sm flex-grow-1"><i class="bi bi-search"></i> खोजें</button>
+      <a href="{% url 'expenses:dashboard_list' %}" class="btn btn-outline-secondary btn-sm">रीसेट</a>
+    </div>
+  </form>
+</div>
+
+<!-- Table -->
+<div class="card card-bagiya border-0 shadow-sm">
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead class="table-light">
+        <tr>
+          <th>दिनांक</th>
+          <th>ID / बिल क्रमांक</th>
+          <th>खर्च विवरण एवं श्रेणी</th>
+          <th>दुकानदार / प्राप्तकर्ता</th>
+          <th class="text-end">राशि (₹)</th>
+          <th>स्वीकृति स्थिति</th>
+          <th>भुगतान स्थिति</th>
+          <th class="text-center">कार्रवाई</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for e in page_obj %}
+        <tr>
+          <td class="small text-muted">{{ e.expense_date|date:"d M Y" }}</td>
+          <td>
+            <div class="fw-bold font-monospace small text-dark">{{ e.expense_id }}</div>
+            {% if e.bill_number %}
+              <small class="text-muted">बिल: {{ e.bill_number }}</small>
+            {% endif %}
+          </td>
+          <td>
+            <div class="fw-bold text-dark">{{ e.description }}</div>
+            <small class="text-muted">{{ e.get_category_display }}</small>
+            {% if e.related_project %}
+              <div><span class="badge bg-light text-primary border" style="font-size: 0.65rem;">{{ e.related_project.name }}</span></div>
+            {% endif %}
+          </td>
+          <td>
+            <div class="small fw-semibold">{{ e.vendor_name }}</div>
+            <small class="text-muted">{{ e.vendor_phone|default:"-" }}</small>
+          </td>
+          <td class="text-end fw-extrabold text-danger font-monospace fs-6">
+            {{ e.amount|inr }}
+          </td>
+          <td>
+            {% if e.approval_status == 'APPROVED' %}
+              <span class="badge bg-success-subtle text-success border border-success">
+                <i class="bi bi-check2 me-1"></i> स्वीकृत
+              </span>
+            {% elif e.approval_status == 'SUBMITTED' %}
+              <span class="badge bg-warning-subtle text-warning border border-warning">
+                <i class="bi bi-hourglass me-1"></i> समीक्षाधीन
+              </span>
+            {% elif e.approval_status == 'DRAFT' %}
+              <span class="badge bg-secondary-subtle text-secondary">प्रारूप (Draft)</span>
+            {% else %}
+              <span class="badge bg-danger-subtle text-danger">अस्वीकृत</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if e.payment_status == 'PAID' %}
+              <span class="badge bg-success text-white">
+                <i class="bi bi-check-circle me-1"></i> भुगतान पूर्ण
+              </span>
+              {% if e.paid_from_account %}
+                <div class="text-muted mt-1" style="font-size: 0.65rem;">{{ e.paid_from_account.name }}</div>
+              {% endif %}
+            {% else %}
+              <span class="badge bg-danger-subtle text-danger border border-danger">
+                लंबित (Unpaid)
+              </span>
+            {% endif %}
+          </td>
+          <td class="text-center">
+            <a href="{% url 'expenses:dashboard_detail' e.expense_id %}" class="btn btn-outline-dark btn-sm" title="विवरण व स्वीकृति">
+              <i class="bi bi-eye"></i>
+            </a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="8" class="text-center py-5 text-muted">
+            <i class="bi bi-inbox fs-2 d-block mb-2"></i>
+            कोई खर्च रिकॉर्ड नहीं मिला।
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% include 'includes/pagination.html' %}
+{% endblock %}

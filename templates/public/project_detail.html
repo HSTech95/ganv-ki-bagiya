@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+{% load static currency_tags %}
+
+{% block title %}{{ project.name }} | गाँव की बगिया{% endblock %}
+
+{% block content %}
+<section class="bg-bagiya-dark text-white py-5">
+  <div class="container py-2">
+    <a href="{% url 'projects:public_list' %}" class="btn btn-outline-light btn-sm mb-3">
+      <i class="bi bi-arrow-left me-1"></i> सभी प्रोजेक्ट्स
+    </a>
+    <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+      <span class="badge bg-success-subtle text-success fs-6">{{ project.get_project_type_display }}</span>
+      <span class="badge bg-{% if project.status == 'COMPLETED' %}success{% else %}warning text-dark{% endif %} fs-6">
+        {{ project.get_status_display }}
+      </span>
+    </div>
+    <h1 class="display-5 fw-bold text-white mb-2">{{ project.name }}</h1>
+    <div class="small text-white-50">
+      <i class="bi bi-calendar-event me-1"></i> शुरू होने की तारीख: <strong>{{ project.start_date|date:"d F Y" }}</strong>
+      {% if project.target_completion_date %}
+        &bull; पूरा होने की उम्मीद: <strong>{{ project.target_completion_date|date:"d F Y" }}</strong>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+<section class="py-5">
+  <div class="container">
+    <div class="row g-5">
+      
+      <!-- Left Column: Details, Budget & Updates -->
+      <div class="col-lg-8">
+        {% if project.featured_image %}
+        <div class="card card-bagiya mb-4 overflow-hidden border-0 shadow">
+          <img src="{{ project.featured_image.url }}" class="img-fluid w-100 object-fit-cover" style="max-height: 420px;" alt="{{ project.name }}">
+        </div>
+        {% endif %}
+
+        <!-- Project Description & Objectives -->
+        <div class="card card-bagiya p-4 border-0 shadow mb-4">
+          <h4 class="fw-bold text-bagiya-dark mb-3">प्रोजेक्ट की जानकारी और मकसद</h4>
+          <p class="text-muted fs-6 lh-base mb-4">{{ project.description|linebreaks }}</p>
+
+          {% if project.objectives %}
+          <div class="p-3 bg-light rounded-3 border-start border-4 border-success">
+            <h6 class="fw-bold text-bagiya-dark mb-2">मुख्य लक्ष्य (Objectives):</h6>
+            <div class="small text-muted">{{ project.objectives|linebreaks }}</div>
+          </div>
+          {% endif %}
+        </div>
+
+        <!-- Budget & Financial Transparency for this Project -->
+        <div class="card card-bagiya p-4 border-0 shadow mb-4">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="fw-bold text-bagiya-dark mb-0">
+              <i class="bi bi-wallet2 text-success me-2"></i>प्रोजेक्ट का बजट और खर्चा
+            </h5>
+            <span class="badge bg-success-subtle text-success">साफ़ हिसाब</span>
+          </div>
+
+          <div class="row g-3 text-center mb-3">
+            <div class="col-md-4">
+              <div class="p-3 bg-light rounded-3 border">
+                <small class="text-muted d-block mb-1">तय कुल बजट</small>
+                <div class="fs-4 fw-bold text-dark">{{ project.estimated_budget|inr }}</div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="p-3 bg-light rounded-3 border">
+                <small class="text-muted d-block mb-1">अब तक हुआ खर्च</small>
+                <div class="fs-4 fw-bold text-danger">{{ project.actual_expenditure|inr }}</div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="p-3 bg-light rounded-3 border">
+                <small class="text-muted d-block mb-1">बचा बजट</small>
+                <div class="fs-4 fw-bold text-success">{{ project.remaining_budget|inr }}</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-2">
+            <div class="d-flex justify-content-between small text-muted mb-1">
+              <span>काम की प्रगति:</span>
+              <span class="fw-bold text-success">{{ project.progress_percentage }}%</span>
+            </div>
+            <div class="progress progress-bagiya">
+              <div class="progress-bar progress-bar-bagiya" role="progressbar" style="width: {{ project.progress_percentage }}%;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Progress Updates Timeline -->
+        <div class="card card-bagiya p-4 border-0 shadow mb-4">
+          <h5 class="fw-bold text-bagiya-dark mb-4">
+            <i class="bi bi-clock-history text-primary me-2"></i>काम की ताज़ा जानकारी (Updates)
+          </h5>
+
+          {% for up in updates %}
+          <div class="border-start border-3 border-success ps-4 pb-4 position-relative">
+            <span class="badge bg-success position-absolute" style="left: -10px; top: 0; width: 18px; height: 18px; border-radius: 50%;"></span>
+            <div class="small text-muted mb-1"><i class="bi bi-calendar3 me-1"></i> {{ up.update_date|date:"d F Y" }}</div>
+            <h6 class="fw-bold text-dark mb-2">{{ up.title }}</h6>
+            <p class="small text-muted mb-3">{{ up.content }}</p>
+            {% if up.photo %}
+              <img src="{{ up.photo.url }}" class="img-fluid rounded-3 shadow-sm" style="max-height: 250px;" alt="{{ up.title }}">
+            {% endif %}
+          </div>
+          {% empty %}
+          <p class="text-muted small">अभी कोई नया अपडेट नहीं आया है।</p>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Right Column: Donation CTA & Direct Contribute -->
+      <div class="col-lg-4">
+        <div class="card card-bagiya p-4 border-0 shadow sticky-top" style="top: 90px;">
+          <h4 class="fw-bold text-bagiya-dark mb-2">इस काम के लिए दान दें</h4>
+          <p class="small text-muted mb-4">
+            आपका दान सिर्फ़ <strong>{{ project.name }}</strong> के काम में ही लगाया जाएगा।
+          </p>
+
+          <a href="{% url 'donations:donate' %}?project={{ project.id }}" class="btn btn-warning btn-lg w-100 py-3 fw-bold mb-3 shadow">
+            <i class="bi bi-heart-fill text-danger me-1"></i> इस काम के लिए दान दें
+          </a>
+
+          <div class="p-3 bg-light rounded-3 small text-muted">
+            <div class="fw-bold text-dark mb-1"><i class="bi bi-shield-check text-success me-1"></i> पक्की रसीद</div>
+            दान देने के बाद तुरंत रसीद मिलेगी और वेबसाइट पर भी दिखेगा।
+          </div>
+
+          {% if project_expenses %}
+          <div class="mt-4 pt-3 border-top">
+            <h6 class="fw-bold small text-muted text-uppercase mb-2">हाल में हुए खर्चे</h6>
+            <ul class="list-unstyled small text-muted mb-0">
+              {% for exp in project_expenses|slice:":4" %}
+              <li class="d-flex justify-content-between py-1 border-bottom">
+                <span class="text-truncate me-2">{{ exp.description }}</span>
+                <strong class="text-danger flex-shrink-0">{{ exp.amount|inr }}</strong>
+              </li>
+              {% endfor %}
+            </ul>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+{% endblock %}

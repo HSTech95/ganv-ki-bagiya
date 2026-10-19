@@ -1,0 +1,94 @@
+<footer class="footer bg-bagiya-earth text-white pt-5 pb-4 mt-auto no-print">
+  <div class="container">
+    <div class="row g-4">
+      <!-- Col 1: Initiative info -->
+      <div class="col-lg-4 col-md-6">
+        <div class="d-flex align-items-center gap-2 mb-3">
+          <div class="brand-icon bg-success">
+            <i class="bi bi-tree-fill text-white"></i>
+          </div>
+          <span class="fs-4 fw-bold">गाँव की बगिया</span>
+        </div>
+        <p class="text-white-50 small mb-3">
+          {{ site_settings.tagline|default:"गाँव को हरा-भरा बनाना और बगिया व कब्रिस्तान को साफ़-सुथरा व सुरक्षित रखना, हम सबका संकल्प।" }}
+        </p>
+        <div class="p-3 rounded-3" style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.1);">
+          <div class="fw-semibold text-warning small mb-1"><i class="bi bi-shield-check me-1"></i> पैसों का साफ़ और खुला हिसाब</div>
+          <p class="text-white-50 small mb-0" style="font-size: 0.8rem;">
+            यहाँ मिलने वाले हर दान और होने वाले हर खर्च का हिसाब रोज़ाना रजिस्टर में लिखा जाता है, ताकि सभी लोग देख सकें।
+          </p>
+        </div>
+      </div>
+
+      <!-- Col 2: Quick Links -->
+      <div class="col-lg-2 col-md-6">
+        <h6 class="text-uppercase fw-bold text-success-light mb-3" style="letter-spacing: 0.5px;">ज़रूरी लिंक</h6>
+        <ul class="list-unstyled small d-flex flex-column gap-2 mb-0">
+          <li><a href="{% url 'public:home' %}" class="text-white-50 text-decoration-none hover-white">होम पेज (Home)</a></li>
+          <li><a href="{% url 'public:about' %}" class="text-white-50 text-decoration-none">हमारे बारे में (About Us)</a></li>
+          <li><a href="{% url 'projects:public_list' %}" class="text-white-50 text-decoration-none">प्रोजेक्ट्स (Projects)</a></li>
+          <li><a href="{% url 'donations:public_list' %}" class="text-white-50 text-decoration-none">दान की सूची (Donations)</a></li>
+          <li><a href="{% url 'finance:transparency' %}" class="text-white-50 text-decoration-none">पैसों का हिसाब (Ledger)</a></li>
+          <li><a href="{% url 'gallery:public_list' %}" class="text-white-50 text-decoration-none">गैलरी (Photos & Videos)</a></li>
+          <li><a href="{% url 'public:volunteer' %}" class="text-white-50 text-decoration-none">साथ जुड़ें / मदद करें (Volunteer)</a></li>
+        </ul>
+      </div>
+
+      <!-- Col 3: Direct Bank & UPI Info -->
+      <div class="col-lg-3 col-md-6">
+        <h6 class="text-uppercase fw-bold text-success-light mb-3" style="letter-spacing: 0.5px;">बैंक और UPI की जानकारी</h6>
+        <div class="small text-white-50 d-flex flex-column gap-2">
+          <div>
+            <strong class="text-white d-block">UPI ID:</strong>
+            <span class="badge bg-success-subtle text-success font-monospace px-2 py-1">{{ site_settings.upi_id|default:"8937877789@ybl" }}</span>
+          </div>
+          <div>
+            <strong class="text-white d-block">बैंक का नाम:</strong>
+            <span>{{ site_settings.bank_name|default:"Bank of Baroda" }}</span>
+          </div>
+          <div>
+            <strong class="text-white d-block">बैंक खाता नंबर:</strong>
+            <span class="font-monospace text-warning">{{ site_settings.bank_account_number|default:"37098100001150" }}</span>
+          </div>
+          <div>
+            <strong class="text-white d-block">IFSC कोड:</strong>
+            <span class="font-monospace">{{ site_settings.bank_ifsc|default:"BARBOPILAKH" }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Col 4: Contact details -->
+      <div class="col-lg-3 col-md-6">
+        <h6 class="text-uppercase fw-bold text-success-light mb-3" style="letter-spacing: 0.5px;">संपर्क की जानकारी</h6>
+        <ul class="list-unstyled small text-white-50 d-flex flex-column gap-2 mb-3">
+          <li class="d-flex align-items-start gap-2">
+            <i class="bi bi-geo-alt-fill text-warning mt-1"></i>
+            <span>{{ site_settings.address|default:"ग्राम पंचायत भवन, मुख्य सड़क" }}</span>
+          </li>
+          <li class="d-flex align-items-center gap-2">
+            <i class="bi bi-telephone-fill text-warning"></i>
+            <span>{{ site_settings.contact_phone|default:"+91 89378 77789" }}</span>
+          </li>
+          <li class="d-flex align-items-center gap-2">
+            <i class="bi bi-envelope-fill text-warning"></i>
+            <span>{{ site_settings.contact_email|default:"alimahi2wins@gmail.com" }}</span>
+          </li>
+        </ul>
+        <a href="{% url 'public:volunteer' %}" class="btn btn-outline-light btn-sm w-100">
+          <i class="bi bi-hand-thumbs-up me-1"></i> हाथ बटाएं / मदद के लिए जुड़ें
+        </a>
+      </div>
+    </div>
+
+    <hr class="my-4" style="border-color: rgba(255, 255, 255, 0.15);">
+
+    <div class="row align-items-center small text-white-50">
+      <div class="col-md-6 text-center text-md-start mb-2 mb-md-0">
+        &copy; {% now "Y" %} <strong>गाँव की बगिया कमेटी</strong>। सभी अधिकार सुरक्षित।
+      </div>
+      <div class="col-md-6 text-center text-md-end">
+        <span class="text-success-light">गाँव वालों के सहयोग से संचालित • साफ़ और पारदर्शी हिसाब-किताब</span>
+      </div>
+    </div>
+  </div>
+</footer>

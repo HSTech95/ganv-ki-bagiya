@@ -1,0 +1,90 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% load static %}
+
+{% block page_title %}नया खर्च दर्ज करें{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <div class="card card-bagiya p-4 border-0 shadow">
+      <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
+        <div>
+          <h4 class="fw-bold text-bagiya-dark mb-0">नया खर्च दर्ज करें (Submit Expense)</h4>
+          <small class="text-muted">निर्माण सामग्री, मजदूरी, उपकरण अथवा रख-रखाव खर्च का बिल विवरण भरें।</small>
+        </div>
+        <a href="{% url 'expenses:dashboard_list' %}" class="btn btn-outline-secondary btn-sm">
+          <i class="bi bi-arrow-left me-1"></i> वापस जाएं
+        </a>
+      </div>
+
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label small fw-bold">खर्च की दिनांक *</label>
+            {{ form.expense_date }}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small fw-bold">खर्च की श्रेणी (Category) *</label>
+            {{ form.category }}
+          </div>
+
+          <div class="col-12">
+            <label class="form-label small fw-bold">खर्च का संक्षिप्त विवरण (Description) *</label>
+            {{ form.description }}
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label small fw-bold text-danger">खर्च राशि (₹) *</label>
+            {{ form.amount }}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small fw-bold">संबंधित प्रोजेक्ट (यदि कोई हो)</label>
+            {{ form.related_project }}
+          </div>
+
+          <!-- Vendor / Payee details -->
+          <div class="col-md-6">
+            <label class="form-label small fw-bold">दुकानदार / कारीगर / प्राप्तकर्ता का नाम *</label>
+            {{ form.vendor_name }}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small fw-bold">दुकानदार का मोबाइल नंबर</label>
+            {{ form.vendor_phone }}
+          </div>
+
+          <!-- Bill / Receipt details -->
+          <div class="col-md-6">
+            <label class="form-label small fw-bold">बिल / वाउचर क्रमांक</label>
+            {{ form.bill_number }}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small fw-bold">बिल की दिनांक</label>
+            {{ form.bill_date }}
+          </div>
+
+          <div class="col-12">
+            <label class="form-label small fw-bold">बिल / रसीद की फोटो या PDF अपलोड करें</label>
+            {{ form.bill_file }}
+            <small class="form-text">कृपया स्पष्ट फोटो या बिल अपलोड करें।</small>
+          </div>
+
+          <div class="col-12">
+            <label class="form-label small fw-bold">अतिरिक्त टिप्पणी / नोट्स</label>
+            {{ form.notes }}
+          </div>
+
+          <div class="col-12 mt-4 d-flex gap-3">
+            <button type="submit" name="action" value="SUBMIT" class="btn btn-danger btn-lg flex-grow-1 py-3 shadow">
+              <i class="bi bi-send-check-fill me-1"></i> समिति स्वीकृति हेतु प्रस्तुत करें (Submit for Approval)
+            </button>
+            <button type="submit" name="action" value="DRAFT" class="btn btn-outline-secondary btn-lg px-4">
+              ड्राफ्ट सहेजें
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

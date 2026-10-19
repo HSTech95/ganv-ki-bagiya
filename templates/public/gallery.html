@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}फोटो एवं वीडियो गैलरी | गाँव की बगिया{% endblock %}
+
+{% block content %}
+<section class="bg-bagiya-dark text-white py-5">
+  <div class="container text-center py-2">
+    <span class="badge bg-success-subtle text-success px-3 py-2 rounded-pill fw-bold mb-2">काम की तस्वीरें</span>
+    <h1 class="display-5 fw-bold text-white mb-2">फोटो व वीडियो गैलरी (Gallery)</h1>
+    <p class="lead text-white-50 mx-auto" style="max-width: 650px;">
+      बगिया बनाने, पेड़ लगाने, कब्रिस्तान की साफ़-सफ़ाई और गाँव वालों के मिलकर काम करने की असली तस्वीरें।
+    </p>
+  </div>
+</section>
+
+<!-- Filter Tabs -->
+<section class="py-3 bg-white border-bottom shadow-sm">
+  <div class="container d-flex flex-wrap justify-content-between align-items-center gap-2">
+    <div class="btn-group" role="group">
+      <a href="{% url 'gallery:public_list' %}" class="btn btn-sm {% if not category_filter and tab != 'before_after' %}btn-success{% else %}btn-outline-success{% endif %}">
+        सभी (All)
+      </a>
+      <a href="{% url 'gallery:public_list' %}?tab=before_after" class="btn btn-sm {% if tab == 'before_after' %}btn-success{% else %}btn-outline-success{% endif %}">
+        <i class="bi bi-arrow-left-right me-1"></i> पहले और अब (Before & After)
+      </a>
+      {% for code, label in categories %}
+        <a href="{% url 'gallery:public_list' %}?category={{ code }}" class="btn btn-sm {% if category_filter == code %}btn-success{% else %}btn-outline-success{% endif %}">
+          {{ label }}
+        </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="py-5">
+  <div class="container">
+    
+    <!-- If Before-and-After Tab is active -->
+    {% if tab == 'before_after' or before_after_items and not category_filter %}
+    <div class="mb-5">
+      <div class="text-center mb-4">
+        <h3 class="fw-bold text-bagiya-dark">पहले और अब की स्थिति (Before & After)</h3>
+        <p class="text-muted small">गाँव वालों के सहयोग से बेकार पड़ी ज़मीन में आए बदलाव की तस्वीरें।</p>
+      </div>
+
+      <div class="row g-4">
+        {% for item in before_after_items %}
+        <div class="col-lg-6">
+          <div class="card card-bagiya p-3 h-100 border-0 shadow-sm">
+            <h5 class="fw-bold text-bagiya-dark mb-3">{{ item.title|default:item.album.title }}</h5>
+            <div class="row g-2">
+              <div class="col-6 position-relative">
+                {% if item.before_image %}
+                  <img src="{{ item.before_image.url }}" class="img-fluid rounded-3 w-100 object-fit-cover shadow-sm" style="height: 220px;" alt="Before">
+                {% else %}
+                  <div class="bg-light rounded-3 text-center py-5">पहले की फोटो</div>
+                {% endif %}
+                <span class="badge bg-danger position-absolute top-0 start-0 m-2">पहले (Before)</span>
+              </div>
+              <div class="col-6 position-relative">
+                {% if item.after_image %}
+                  <img src="{{ item.after_image.url }}" class="img-fluid rounded-3 w-100 object-fit-cover shadow-sm" style="height: 220px;" alt="After">
+                {% else %}
+                  <div class="bg-success-subtle rounded-3 text-center py-5">अब (After)</div>
+                {% endif %}
+                <span class="badge bg-success position-absolute top-0 start-0 m-2">अब (After)</span>
+              </div>
+            </div>
+            {% if item.caption %}
+              <p class="small text-muted mt-3 mb-0">{{ item.caption }}</p>
+            {% endif %}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Photo Gallery Grid -->
+    {% if tab != 'before_after' %}
+    <div class="row g-4">
+      {% for item in items %}
+      <div class="col-lg-4 col-md-6">
+        <div class="card card-bagiya h-100 border-0 shadow-sm overflow-hidden">
+          {% if item.media_type == 'PHOTO' %}
+            {% if item.image %}
+              <img src="{{ item.image.url }}" class="card-img-top w-100 object-fit-cover" style="height: 240px; cursor: pointer;" alt="{{ item.title }}" data-bs-toggle="modal" data-bs-target="#imgModal{{ item.id }}">
+            {% else %}
+              <div class="bg-light d-flex align-items-center justify-content-center" style="height: 240px;">
+                <i class="bi bi-image fs-1 text-muted"></i>
+              </div>
+            {% endif %}
+          {% else %}
+            <!-- Video link -->
+            <div class="bg-dark text-white d-flex flex-column align-items-center justify-content-center" style="height: 240px;">
+              <i class="bi bi-play-circle-fill fs-1 text-danger mb-2"></i>
+              <a href="{{ item.video_url }}" target="_blank" class="btn btn-outline-light btn-sm">
+                वीडियो देखें (Watch Video)
+              </a>
+            </div>
+          {% endif %}
+
+          <div class="p-3">
+            <span class="badge bg-light text-muted border mb-1">{{ item.album.get_category_display }}</span>
+            <h6 class="fw-bold mb-1">{{ item.title|default:item.album.title }}</h6>
+            {% if item.caption %}
+              <p class="small text-muted mb-0">{{ item.caption }}</p>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Image Lightbox Modal -->
+        {% if item.image %}
+        <div class="modal fade" id="imgModal{{ item.id }}" tabindex="-1" aria-hidden="true">
+          <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content bg-transparent border-0">
+              <div class="modal-body p-0 text-center position-relative">
+                <button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-3" data-bs-dismiss="modal" aria-label="Close"></button>
+                <img src="{{ item.image.url }}" class="img-fluid rounded-3 shadow-lg" alt="{{ item.title }}">
+                <div class="text-white small mt-2">{{ item.title }} - {{ item.album.title }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+      {% empty %}
+      <div class="col-12 text-center py-5 text-muted">
+        <i class="bi bi-images fs-1 d-block mb-2"></i>
+        यहाँ अभी कोई फोटो या वीडियो नहीं है।
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+  </div>
+</section>
+{% endblock %}

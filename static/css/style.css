@@ -1,0 +1,589 @@
+/* ==========================================================================
+   Ganv Ki Bagiya — Modern Nature-Inspired Stylesheet
+   ========================================================================== */
+
+:root {
+  --bagiya-primary: #198754;
+  --bagiya-primary-dark: #0f5132;
+  --bagiya-primary-deep: #063920;
+  --bagiya-primary-light: #e8f5e9;
+  --bagiya-mint: #d1e7dd;
+  --bagiya-earth: #795548;
+  --bagiya-earth-dark: #3e2723;
+  --bagiya-earth-light: #efebe9;
+  --bagiya-sand: #fbf9f5;
+  --bagiya-amber: #d97706;
+  --bagiya-card-shadow: 0 4px 20px rgba(15, 81, 50, 0.08);
+  --bagiya-card-hover: 0 10px 25px rgba(15, 81, 50, 0.14);
+  --bagiya-radius: 12px;
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', 'Noto Sans Devanagari', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background-color: var(--bagiya-sand);
+  color: #212529;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+main {
+  flex: 1 0 auto;
+}
+
+/* Typography Enhancements */
+h1, h2, h3, h4, h5, h6, .navbar-brand {
+  font-family: 'Plus Jakarta Sans', 'Noto Sans Devanagari', sans-serif;
+  font-weight: 700;
+  color: var(--bagiya-primary-deep);
+}
+
+.text-bagiya-primary {
+  color: var(--bagiya-primary) !important;
+}
+
+.text-bagiya-dark {
+  color: var(--bagiya-primary-dark) !important;
+}
+
+.bg-bagiya-primary {
+  background-color: var(--bagiya-primary) !important;
+}
+
+.bg-bagiya-dark {
+  background-color: var(--bagiya-primary-dark) !important;
+}
+
+.bg-bagiya-light {
+  background-color: var(--bagiya-primary-light) !important;
+}
+
+.bg-bagiya-earth {
+  background-color: var(--bagiya-earth-dark) !important;
+}
+
+/* Navbar */
+.navbar-bagiya {
+  background-color: #ffffff;
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.06);
+  border-bottom: 2px solid var(--bagiya-primary-light);
+  padding: 0.75rem 0;
+}
+
+.navbar-bagiya .nav-link {
+  font-weight: 600;
+  color: #2c3e50;
+  padding: 0.5rem 1rem !important;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.navbar-bagiya .nav-link:hover,
+.navbar-bagiya .nav-link.active {
+  color: var(--bagiya-primary);
+  background-color: var(--bagiya-primary-light);
+}
+
+.brand-icon {
+  width: 44px;
+  height: 44px;
+  background: linear-gradient(135deg, #198754, #0f5132);
+  color: #ffffff;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  box-shadow: 0 4px 10px rgba(25, 135, 84, 0.3);
+}
+
+/* Hero Section */
+.hero-banner {
+  background: linear-gradient(135deg, #073822 0%, #0f5132 50%, #198754 100%);
+  color: #ffffff;
+  padding: 5rem 0 4.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-banner::after {
+  content: "";
+  position: absolute;
+  top: 0; right: 0; bottom: 0; left: 0;
+  background-image: radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.08) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+.hero-stats-badge {
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50rem;
+  padding: 0.4rem 1.2rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: #e8f5e9;
+}
+
+/* Stat Cards */
+.stat-card {
+  background: #ffffff;
+  border-radius: var(--bagiya-radius);
+  padding: 1.5rem;
+  border: 1px solid rgba(15, 81, 50, 0.08);
+  box-shadow: var(--bagiya-card-shadow);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--bagiya-card-hover);
+}
+
+.stat-icon-wrapper {
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+}
+
+.stat-value {
+  font-size: 1.85rem;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+/* Cards & Components */
+.card-bagiya {
+  background: #ffffff;
+  border-radius: var(--bagiya-radius);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: var(--bagiya-card-shadow);
+  transition: all 0.25s ease;
+  overflow: hidden;
+}
+
+.card-bagiya:hover {
+  box-shadow: var(--bagiya-card-hover);
+}
+
+.card-header-bagiya {
+  background-color: #ffffff;
+  border-bottom: 1px solid rgba(15, 81, 50, 0.08);
+  padding: 1.25rem 1.5rem;
+  font-weight: 700;
+}
+
+/* Custom Buttons */
+.btn-bagiya-primary {
+  background: linear-gradient(135deg, #198754, #0f5132);
+  color: #ffffff;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  padding: 0.6rem 1.5rem;
+  box-shadow: 0 4px 12px rgba(25, 135, 84, 0.25);
+  transition: all 0.2s ease;
+}
+
+.btn-bagiya-primary:hover, .btn-bagiya-primary:focus {
+  background: linear-gradient(135deg, #0f5132, #073822);
+  color: #ffffff;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(25, 135, 84, 0.35);
+}
+
+.btn-bagiya-outline {
+  color: var(--bagiya-primary-dark);
+  border: 2px solid var(--bagiya-primary);
+  font-weight: 600;
+  border-radius: 8px;
+  padding: 0.55rem 1.4rem;
+  background: transparent;
+  transition: all 0.2s ease;
+}
+
+.btn-bagiya-outline:hover {
+  background: var(--bagiya-primary);
+  color: #ffffff;
+}
+
+/* Progress Bars */
+.progress-bagiya {
+  height: 10px;
+  border-radius: 20px;
+  background-color: #e9ecef;
+  overflow: hidden;
+}
+
+.progress-bar-bagiya {
+  background: linear-gradient(90deg, #20c997, #198754);
+}
+
+/* Tables */
+.table-bagiya thead th {
+  background-color: #f8faf8;
+  color: var(--bagiya-primary-deep);
+  font-weight: 700;
+  border-bottom: 2px solid var(--bagiya-mint);
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 0.9rem 1rem;
+}
+
+.table-bagiya tbody td {
+  padding: 0.9rem 1rem;
+  vertical-align: middle;
+}
+
+.table-bagiya tbody tr:hover {
+  background-color: rgba(232, 245, 233, 0.35);
+}
+
+/* Dashboard Sidebar */
+.dashboard-wrapper {
+  display: flex;
+  min-height: 100vh;
+}
+
+.dashboard-sidebar {
+  width: 280px;
+  background-color: #073822;
+  color: #e8f5e9;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.dashboard-sidebar .brand {
+  padding: 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-nav {
+  padding: 1rem 0;
+  flex-grow: 1;
+}
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1.5rem;
+  color: #c8e6c9;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.95rem;
+  border-left: 4px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.sidebar-link:hover, .sidebar-link.active {
+  color: #ffffff;
+  background-color: rgba(255, 255, 255, 0.08);
+  border-left-color: #48bb78;
+}
+
+.sidebar-link i {
+  font-size: 1.2rem;
+  width: 24px;
+  text-align: center;
+}
+
+.sidebar-section-title {
+  padding: 0.75rem 1.5rem 0.25rem;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #81c784;
+  font-weight: 700;
+}
+
+.dashboard-content {
+  flex-grow: 1;
+  background-color: #f4f6f5;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+}
+
+.dashboard-topbar {
+  background-color: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 0.75rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.dashboard-main {
+  padding: 2rem;
+  flex-grow: 1;
+}
+
+/* Digital Receipt Presentation */
+.receipt-paper {
+  background: #ffffff;
+  border: 2px dashed #0f5132;
+  border-radius: 12px;
+  padding: 2.5rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  position: relative;
+}
+
+.receipt-seal {
+  width: 90px;
+  height: 90px;
+  border: 3px double #0f5132;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: #0f5132;
+  font-weight: 700;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  margin: 0 auto;
+}
+
+/* ==========================================================================
+   Print Styles: Single-page Receipt and Clean Reports
+   ========================================================================== */
+@page {
+  size: portrait;
+  margin: 6mm 8mm;
+}
+
+@media print {
+  html, body {
+    background: #ffffff !important;
+    color: #111827 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    font-size: 13px !important;
+    display: block !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  header, nav, footer,
+  .navbar, .footer,
+  .btn, .no-print,
+  .alert, #messages,
+  .dashboard-sidebar, .dashboard-topbar {
+    display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  main, #main-content, section, .receipt-section,
+  .container, .receipt-container,
+  .row, .col-lg-8, .receipt-col {
+    padding: 0 !important;
+    margin: 0 auto !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    border: none !important;
+    display: block !important;
+  }
+
+  .receipt-paper {
+    box-sizing: border-box !important;
+    width: 100% !important;
+    max-width: 680px !important;
+    margin: 0 auto !important;
+    padding: 12px 18px !important;
+    border: 1.5px solid #0f5132 !important;
+    border-radius: 8px !important;
+    box-shadow: none !important;
+    background: #ffffff !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    page-break-after: avoid !important;
+    break-after: avoid !important;
+    page-break-before: avoid !important;
+    break-before: avoid !important;
+    overflow: hidden !important;
+  }
+
+  .receipt-header {
+    border-bottom: 1.5px solid #dee2e6 !important;
+    padding-bottom: 6px !important;
+    margin-bottom: 8px !important;
+    text-align: center !important;
+  }
+
+  .receipt-header .brand-icon {
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px !important;
+  }
+
+  .receipt-header .brand-icon i {
+    font-size: 1.25rem !important;
+  }
+
+  .receipt-header h3 {
+    font-size: 1.25rem !important;
+    margin-bottom: 0 !important;
+    line-height: 1.2 !important;
+  }
+
+  .receipt-header small {
+    font-size: 0.75rem !important;
+    display: block !important;
+  }
+
+  .receipt-contact-info {
+    font-size: 0.72rem !important;
+    margin-top: 2px !important;
+    color: #4b5563 !important;
+  }
+
+  .receipt-meta {
+    padding: 5px 12px !important;
+    margin-bottom: 8px !important;
+    background: #f8f9fa !important;
+    border: 1px solid #e5e7eb !important;
+    border-radius: 6px !important;
+  }
+
+  .receipt-meta span {
+    font-size: 0.72rem !important;
+    line-height: 1.2 !important;
+  }
+
+  .receipt-meta strong,
+  .receipt-num {
+    font-size: 1rem !important;
+    line-height: 1.2 !important;
+  }
+
+  .receipt-table {
+    margin-bottom: 8px !important;
+    width: 100% !important;
+    border: 1px solid #dee2e6 !important;
+    border-collapse: collapse !important;
+  }
+
+  .receipt-table th,
+  .receipt-table td {
+    padding: 3px 8px !important;
+    font-size: 0.82rem !important;
+    line-height: 1.25 !important;
+    border: 1px solid #dee2e6 !important;
+    vertical-align: middle !important;
+  }
+
+  .receipt-table th {
+    width: 35% !important;
+    background: #f9fafb !important;
+    font-weight: 600 !important;
+    color: #374151 !important;
+  }
+
+  .receipt-table .donor-name {
+    font-size: 0.95rem !important;
+    font-weight: 700 !important;
+  }
+
+  .receipt-table .amount-display {
+    font-size: 1.1rem !important;
+    font-weight: 800 !important;
+    color: #0f5132 !important;
+  }
+
+  .receipt-table .badge {
+    padding: 2px 6px !important;
+    font-size: 0.72rem !important;
+    border: 1px solid currentColor !important;
+  }
+
+  .receipt-message {
+    padding: 4px 8px !important;
+    margin-bottom: 6px !important;
+    font-size: 0.72rem !important;
+    border: 1px dashed #cbd5e1 !important;
+    background: #f8fafc !important;
+  }
+
+  .receipt-signatures {
+    margin-top: 8px !important;
+    padding-top: 6px !important;
+    border-top: 1px solid #dee2e6 !important;
+  }
+
+  .receipt-signatures .sig-title {
+    font-size: 0.72rem !important;
+    margin-bottom: 10px !important;
+    color: #4b5563 !important;
+  }
+
+  .receipt-signatures .sig-name {
+    font-size: 0.78rem !important;
+    padding-top: 2px !important;
+    border-top: 1px solid #9ca3af !important;
+    display: inline-block !important;
+    min-width: 100px !important;
+  }
+
+  .receipt-seal {
+    width: 60px !important;
+    height: 60px !important;
+    border: 2px double #0f5132 !important;
+    font-size: 0.5rem !important;
+    margin: 0 auto !important;
+    padding: 2px !important;
+    line-height: 1.15 !important;
+  }
+
+  .receipt-seal .my-1 {
+    margin-top: 1px !important;
+    margin-bottom: 1px !important;
+  }
+
+  .receipt-disclaimer {
+    margin-top: 6px !important;
+    padding-top: 4px !important;
+    font-size: 0.65rem !important;
+    color: #6b7280 !important;
+    border-top: 1px solid #f1f5f9 !important;
+    line-height: 1.25 !important;
+  }
+
+  .receipt-disclaimer a {
+    color: #0f5132 !important;
+    text-decoration: none !important;
+  }
+
+  .dashboard-content, .dashboard-main {
+    padding: 0 !important;
+    background: #ffffff !important;
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 991.98px) {
+  .dashboard-wrapper {
+    flex-direction: column;
+  }
+  .dashboard-sidebar {
+    width: 100%;
+  }
+  .dashboard-main {
+    padding: 1rem;
+  }
+}

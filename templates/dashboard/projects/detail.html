@@ -1,0 +1,114 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% load static currency_tags %}
+
+{% block page_title %}{{ project.name }} | प्रोजेक्ट प्रबंधन{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <a href="{% url 'projects:dashboard_list' %}" class="btn btn-outline-secondary btn-sm mb-1">
+      <i class="bi bi-arrow-left me-1"></i> समस्त प्रोजेक्ट्स
+    </a>
+    <h4 class="fw-bold text-bagiya-dark mb-0">{{ project.name }}</h4>
+  </div>
+  <div class="d-flex gap-2">
+    <a href="{% url 'projects:public_detail' project.slug %}" target="_blank" class="btn btn-outline-success btn-sm">
+      <i class="bi bi-globe me-1"></i> पब्लिक पेज देखें
+    </a>
+    <a href="{% url 'projects:dashboard_edit' project.pk %}" class="btn btn-outline-secondary btn-sm">
+      <i class="bi bi-pencil me-1"></i> संपादित करें
+    </a>
+  </div>
+</div>
+
+<div class="row g-4">
+  <div class="col-lg-7">
+    <div class="card card-bagiya p-4 border-0 shadow-sm mb-4">
+      <h5 class="fw-bold text-bagiya-dark mb-3">प्रोजेक्ट बजट एवं वित्तीय स्थिति</h5>
+      <div class="row g-3 text-center mb-3">
+        <div class="col-4">
+          <div class="p-3 bg-light rounded-3 border">
+            <small class="text-muted d-block">स्वीकृत बजट</small>
+            <strong class="fs-5 text-dark">{{ project.estimated_budget|inr }}</strong>
+          </div>
+        </div>
+        <div class="col-4">
+          <div class="p-3 bg-light rounded-3 border">
+            <small class="text-muted d-block">वास्तविक खर्च</small>
+            <strong class="fs-5 text-danger">{{ project.actual_expenditure|inr }}</strong>
+          </div>
+        </div>
+        <div class="col-4">
+          <div class="p-3 bg-light rounded-3 border">
+            <small class="text-muted d-block">शेष बजट</small>
+            <strong class="fs-5 text-success">{{ project.remaining_budget|inr }}</strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <div class="d-flex justify-content-between small text-muted mb-1">
+          <span>वर्तमान प्रगति (Progress):</span>
+          <span class="fw-bold text-success">{{ project.progress_percentage }}%</span>
+        </div>
+        <div class="progress progress-bagiya">
+          <div class="progress-bar progress-bar-bagiya" role="progressbar" style="width: {{ project.progress_percentage }}%;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Timeline of updates -->
+    <div class="card card-bagiya p-4 border-0 shadow-sm">
+      <h5 class="fw-bold text-bagiya-dark mb-3">प्रगति अपडेट्स (Updates Timeline)</h5>
+      {% for up in updates %}
+      <div class="border-start border-3 border-success ps-3 pb-3 mb-3">
+        <div class="small text-muted mb-1">{{ up.update_date|date:"d M Y" }} &bull; पोस्टकर्ता: {{ up.posted_by.username }}</div>
+        <h6 class="fw-bold mb-1">{{ up.title }}</h6>
+        <p class="small text-muted mb-2">{{ up.content }}</p>
+        {% if up.photo %}
+          <img src="{{ up.photo.url }}" class="img-fluid rounded border shadow-sm" style="max-height: 200px;" alt="{{ up.title }}">
+        {% endif %}
+      </div>
+      {% empty %}
+      <p class="text-muted small mb-0">कोई अपडेट पोस्ट नहीं हुआ है। दाहिनी ओर दिए गए फॉर्म से अपडेट जोड़ें।</p>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Right Column: Add Progress Update Form -->
+  <div class="col-lg-5">
+    <div class="card card-bagiya p-4 border-0 shadow-sm">
+      <h5 class="fw-bold text-bagiya-dark mb-3">
+        <i class="bi bi-plus-circle text-success me-1"></i>नया प्रगति अपडेट पोस्ट करें
+      </h5>
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="hidden" name="post_update" value="1">
+        <div class="mb-3">
+          <label class="form-label small fw-bold">अपडेट शीर्षक *</label>
+          {{ update_form.title }}
+        </div>
+        <div class="mb-3">
+          <label class="form-label small fw-bold">प्रगति विवरण *</label>
+          {{ update_form.content }}
+        </div>
+        <div class="mb-3">
+          <label class="form-label small fw-bold">दिनांक *</label>
+          {{ update_form.update_date }}
+        </div>
+        <div class="mb-3">
+          <label class="form-label small fw-bold">नई कार्यप्रगति प्रतिशत (%)</label>
+          <input type="number" name="progress_percentage" value="{{ project.progress_percentage }}" min="0" max="100" class="form-control">
+        </div>
+        <div class="mb-4">
+          <label class="form-label small fw-bold">प्रगति फोटो</label>
+          {{ update_form.photo }}
+        </div>
+        <button type="submit" class="btn btn-bagiya-primary w-100 py-2">
+          <i class="bi bi-send-fill me-1"></i> अपडेट प्रकाशित करें
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,359 @@
+{% extends 'base.html' %}
+{% load static currency_tags %}
+
+{% block title %}दान की रसीद और शुक्रिया | गाँव की बगिया{% endblock %}
+
+{% block extra_css %}
+<style>
+  @page {
+    size: portrait;
+    margin: 6mm 8mm;
+  }
+  @media print {
+    html, body {
+      background: #ffffff !important;
+      color: #111827 !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      width: 100% !important;
+      height: auto !important;
+      min-height: 0 !important;
+      font-size: 13px !important;
+      display: block !important;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+
+    header, nav, footer,
+    .navbar, .footer,
+    .btn, .no-print,
+    .alert, #messages,
+    .dashboard-sidebar, .dashboard-topbar {
+      display: none !important;
+      visibility: hidden !important;
+      height: 0 !important;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+
+    main, #main-content, section, .receipt-section,
+    .container, .receipt-container,
+    .row, .col-lg-8, .receipt-col {
+      padding: 0 !important;
+      margin: 0 auto !important;
+      width: 100% !important;
+      max-width: 100% !important;
+      border: none !important;
+      display: block !important;
+    }
+
+    .receipt-paper {
+      box-sizing: border-box !important;
+      width: 100% !important;
+      max-width: 680px !important;
+      margin: 0 auto !important;
+      padding: 12px 18px !important;
+      border: 1.5px solid #0f5132 !important;
+      border-radius: 8px !important;
+      box-shadow: none !important;
+      background: #ffffff !important;
+      page-break-inside: avoid !important;
+      break-inside: avoid !important;
+      page-break-after: avoid !important;
+      break-after: avoid !important;
+      page-break-before: avoid !important;
+      break-before: avoid !important;
+      overflow: hidden !important;
+    }
+
+    .receipt-header {
+      border-bottom: 1.5px solid #dee2e6 !important;
+      padding-bottom: 6px !important;
+      margin-bottom: 8px !important;
+      text-align: center !important;
+    }
+
+    .receipt-header .brand-icon {
+      width: 36px !important;
+      height: 36px !important;
+      min-width: 36px !important;
+    }
+
+    .receipt-header .brand-icon i {
+      font-size: 1.25rem !important;
+    }
+
+    .receipt-header h3 {
+      font-size: 1.25rem !important;
+      margin-bottom: 0 !important;
+      line-height: 1.2 !important;
+    }
+
+    .receipt-header small {
+      font-size: 0.75rem !important;
+      display: block !important;
+    }
+
+    .receipt-contact-info {
+      font-size: 0.72rem !important;
+      margin-top: 2px !important;
+      color: #4b5563 !important;
+    }
+
+    .receipt-meta {
+      padding: 5px 12px !important;
+      margin-bottom: 8px !important;
+      background: #f8f9fa !important;
+      border: 1px solid #e5e7eb !important;
+      border-radius: 6px !important;
+    }
+
+    .receipt-meta span {
+      font-size: 0.72rem !important;
+      line-height: 1.2 !important;
+    }
+
+    .receipt-meta strong,
+    .receipt-num {
+      font-size: 1rem !important;
+      line-height: 1.2 !important;
+    }
+
+    .receipt-table {
+      margin-bottom: 8px !important;
+      width: 100% !important;
+      border: 1px solid #dee2e6 !important;
+      border-collapse: collapse !important;
+    }
+
+    .receipt-table th,
+    .receipt-table td {
+      padding: 3px 8px !important;
+      font-size: 0.82rem !important;
+      line-height: 1.25 !important;
+      border: 1px solid #dee2e6 !important;
+      vertical-align: middle !important;
+    }
+
+    .receipt-table th {
+      width: 35% !important;
+      background: #f9fafb !important;
+      font-weight: 600 !important;
+      color: #374151 !important;
+    }
+
+    .receipt-table .donor-name {
+      font-size: 0.95rem !important;
+      font-weight: 700 !important;
+    }
+
+    .receipt-table .amount-display {
+      font-size: 1.1rem !important;
+      font-weight: 800 !important;
+      color: #0f5132 !important;
+    }
+
+    .receipt-table .badge {
+      padding: 2px 6px !important;
+      font-size: 0.72rem !important;
+      border: 1px solid currentColor !important;
+    }
+
+    .receipt-message {
+      padding: 4px 8px !important;
+      margin-bottom: 6px !important;
+      font-size: 0.72rem !important;
+      border: 1px dashed #cbd5e1 !important;
+      background: #f8fafc !important;
+    }
+
+    .receipt-signatures {
+      margin-top: 8px !important;
+      padding-top: 6px !important;
+      border-top: 1px solid #dee2e6 !important;
+    }
+
+    .receipt-signatures .sig-title {
+      font-size: 0.72rem !important;
+      margin-bottom: 10px !important;
+      color: #4b5563 !important;
+    }
+
+    .receipt-signatures .sig-name {
+      font-size: 0.78rem !important;
+      padding-top: 2px !important;
+      border-top: 1px solid #9ca3af !important;
+      display: inline-block !important;
+      min-width: 100px !important;
+    }
+
+    .receipt-seal {
+      width: 60px !important;
+      height: 60px !important;
+      border: 2px double #0f5132 !important;
+      font-size: 0.5rem !important;
+      margin: 0 auto !important;
+      padding: 2px !important;
+      line-height: 1.15 !important;
+    }
+
+    .receipt-seal .my-1 {
+      margin-top: 1px !important;
+      margin-bottom: 1px !important;
+    }
+
+    .receipt-disclaimer {
+      margin-top: 6px !important;
+      padding-top: 4px !important;
+      font-size: 0.65rem !important;
+      color: #6b7280 !important;
+      border-top: 1px solid #f1f5f9 !important;
+      line-height: 1.25 !important;
+    }
+
+    .receipt-disclaimer a {
+      color: #0f5132 !important;
+      text-decoration: none !important;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="py-5 receipt-section">
+  <div class="container receipt-container">
+    <div class="row justify-content-center">
+      <div class="col-lg-8 receipt-col">
+        
+        <!-- Action Toolbar (Hidden in print) -->
+        <div class="d-flex justify-content-between align-items-center mb-4 no-print">
+          <a href="{% url 'public:home' %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i> मुख्य पेज पर जाएं
+          </a>
+          <div class="d-flex gap-2">
+            <button onclick="window.print()" class="btn btn-success shadow-sm">
+              <i class="bi bi-printer-fill me-1"></i> रसीद प्रिंट करें (Print)
+            </button>
+            <a href="{% url 'donations:donate' %}" class="btn btn-outline-success">
+              <i class="bi bi-plus-circle me-1"></i> दूसरा दान करें
+            </a>
+          </div>
+        </div>
+
+        <!-- Official Printable Digital Receipt Paper -->
+        <div class="receipt-paper">
+          <!-- Receipt Header -->
+          <div class="receipt-header text-center border-bottom pb-3 mb-4">
+            <div class="d-inline-flex align-items-center gap-2 mb-2">
+              <div class="brand-icon bg-success" style="width: 48px; height: 48px;">
+                <i class="bi bi-tree-fill text-white fs-4"></i>
+              </div>
+              <div class="text-start">
+                <h3 class="fw-extrabold text-bagiya-dark mb-0">गाँव की बगिया कमेटी</h3>
+                <small class="text-muted fw-semibold">Ganv Ki Bagiya &bull; जन-कल्याण एवं कब्रिस्तान सेवा</small>
+              </div>
+            </div>
+            <div class="small text-muted receipt-contact-info">
+              {{ settings.address|default:site_settings.address|default:"ग्राम पंचायत भवन, मुख्य सड़क, उत्तर प्रदेश" }} &bull; Helpline: {{ settings.contact_phone|default:site_settings.contact_phone|default:"+91 89378 77789" }}
+            </div>
+          </div>
+
+          <!-- Title Bar -->
+          <div class="receipt-meta d-flex justify-content-between align-items-center bg-light p-3 rounded-3 mb-4 border">
+            <div>
+              <span class="text-muted small d-block">दान की पक्की रसीद (Donation Receipt)</span>
+              <strong class="font-monospace fs-5 text-dark receipt-num">{{ donation.receipt_number }}</strong>
+            </div>
+            <div class="text-end">
+              <span class="text-muted small d-block">तारीख (Date):</span>
+              <strong class="text-dark">{{ donation.donation_date|date:"d F Y" }}</strong>
+            </div>
+          </div>
+
+          <!-- Donor & Contribution Table -->
+          <table class="table table-bordered mb-4 receipt-table">
+            <tbody>
+              <tr>
+                <th class="bg-light" style="width: 35%;">दानदाता का नाम (नाम):</th>
+                <td class="fw-bold fs-5 text-bagiya-dark donor-name">{{ donation.public_donor_name }}</td>
+              </tr>
+              <tr>
+                <th class="bg-light">मोबाइल नंबर (फ़ोन):</th>
+                <td class="font-monospace">{{ donation.masked_phone }}</td>
+              </tr>
+              <tr>
+                <th class="bg-light">दान का काम (उद्देश्य):</th>
+                <td class="fw-semibold text-success">{{ donation.get_purpose_display }}</td>
+              </tr>
+              {% if donation.related_project %}
+              <tr>
+                <th class="bg-light">संबंधित प्रोजेक्ट (Project):</th>
+                <td>{{ donation.related_project.name }}</td>
+              </tr>
+              {% endif %}
+              <tr>
+                <th class="bg-light">पेमेंट का तरीका (Payment Mode):</th>
+                <td>{{ donation.get_payment_method_display }}</td>
+              </tr>
+              <tr>
+                <th class="bg-light">UTR / ट्रांजेक्शन नंबर:</th>
+                <td class="font-monospace">{{ donation.transaction_reference|default:"प्रतीक्षित / Cash Record" }}</td>
+              </tr>
+              <tr>
+                <th class="bg-light align-middle">दान की रकम (Amount):</th>
+                <td class="fs-4 fw-extrabold text-success amount-display">{{ donation.amount|inr }}</td>
+              </tr>
+              <tr>
+                <th class="bg-light">स्टेटस (Status):</th>
+                <td>
+                  {% if donation.payment_status == 'CONFIRMED' %}
+                    <span class="badge bg-success px-3 py-2 fs-6">
+                      <i class="bi bi-check-circle-fill me-1"></i> सत्यापित एवं हिसाब में दर्ज (Confirmed)
+                    </span>
+                  {% else %}
+                    <span class="badge bg-warning text-dark px-3 py-2 fs-6">
+                      <i class="bi bi-clock-history me-1"></i> बैंक से मिलान जारी (Under Verification)
+                    </span>
+                  {% endif %}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          {% if donation.message %}
+          <div class="receipt-message p-3 bg-light rounded-3 mb-4 border border-secondary border-opacity-25 fst-italic text-muted small">
+            <strong>दानदाता का संदेश:</strong> "{{ donation.message }}"
+          </div>
+          {% endif %}
+
+          <!-- Committee Signatures & Seal -->
+          <div class="receipt-signatures row align-items-center mt-5 pt-3 border-top">
+            <div class="col-4 text-center">
+              <div class="text-muted small mb-4 sig-title">हस्ताक्षर खजांची (Treasurer)</div>
+              <div class="fw-bold small text-dark border-top pt-1 sig-name">{{ settings.treasurer_name|default:"खजांची" }}</div>
+            </div>
+
+            <div class="col-4 text-center">
+              <div class="receipt-seal">
+                <div>GANV KI BAGIYA</div>
+                <div class="my-1">★ ★ ★</div>
+                <div>VERIFIED</div>
+              </div>
+            </div>
+
+            <div class="col-4 text-center">
+              <div class="text-muted small mb-4 sig-title">हस्ताक्षर सदर / अध्यक्ष (President)</div>
+              <div class="fw-bold small text-dark border-top pt-1 sig-name">{{ settings.president_name|default:"अध्यक्ष" }}</div>
+            </div>
+          </div>
+
+          <div class="receipt-disclaimer text-center text-muted small mt-4 pt-2 border-top" style="font-size: 0.75rem;">
+            यह कंप्यूटर से बनी पक्की डिजिटल रसीद है। इसका मिलान वेबसाइट के <a href="{% url 'finance:transparency' %}">हिसाब-किताब पेज</a> पर देखा जा सकता है।
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

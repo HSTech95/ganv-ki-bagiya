@@ -1,0 +1,168 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% load static %}
+
+{% block page_title %}फोटो एवं वीडियो गैलरी प्रबंधन{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h4 class="fw-bold text-bagiya-dark mb-0">गैलरी एवं मीडिया प्रबंधन</h4>
+    <small class="text-muted">वेबसाइट पर प्रदर्शित होने वाले एल्बम, तस्वीरें, वीडियो एवं पहले-और-अब के दृश्य।</small>
+  </div>
+  <div class="d-flex gap-2">
+    <button class="btn btn-outline-success btn-sm" data-bs-toggle="modal" data-bs-target="#newAlbumModal">
+      <i class="bi bi-folder-plus me-1"></i> नया एल्बम बनाएं
+    </button>
+    <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#uploadItemModal">
+      <i class="bi bi-cloud-arrow-up me-1"></i> फोटो / वीडियो अपलोड करें
+    </button>
+  </div>
+</div>
+
+<div class="row g-4">
+  {% for album in albums %}
+  <div class="col-lg-6">
+    <div class="card card-bagiya h-100 p-4 border-0 shadow-sm">
+      <div class="d-flex justify-content-between align-items-start mb-2">
+        <span class="badge bg-light text-dark border">{{ album.get_category_display }}</span>
+        {% if album.is_published %}
+          <span class="badge bg-success-subtle text-success">प्रकाशित</span>
+        {% else %}
+          <span class="badge bg-secondary">अप्रकाशित</span>
+        {% endif %}
+      </div>
+
+      <h5 class="fw-bold text-bagiya-dark mb-1">{{ album.title }}</h5>
+      <p class="small text-muted mb-3">{{ album.description|default:"-" }}</p>
+
+      <h6 class="small fw-bold text-muted mb-2">संलग्न तस्वीरें ({{ album.items.count }}):</h6>
+      <div class="d-flex flex-wrap gap-2 mb-3">
+        {% for it in album.items.all|slice:":6" %}
+          {% if it.image %}
+            <img src="{{ it.image.url }}" class="rounded object-fit-cover shadow-sm" style="width: 70px; height: 70px;" alt="{{ it.title }}">
+          {% elif it.before_image %}
+            <img src="{{ it.before_image.url }}" class="rounded object-fit-cover shadow-sm" style="width: 70px; height: 70px;" alt="Before">
+          {% endif %}
+        {% empty %}
+          <small class="text-muted fst-italic">इस एल्बम में कोई फोटो नहीं है।</small>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  {% empty %}
+  <div class="col-12 text-center py-5 text-muted">कोई एल्बम नहीं बना है। ऊपर दिए गए बटन से नया एल्बम बनाएं।</div>
+  {% endfor %}
+</div>
+
+<!-- Modal: New Album -->
+<div class="modal fade" id="newAlbumModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-success text-white">
+        <h5 class="modal-title fw-bold">नया गैलरी एल्बम बनाएं</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <form method="post" action="{% url 'gallery:dashboard_album_create' %}" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label small fw-bold">एल्बम का शीर्षक *</label>
+            {{ album_form.title }}
+          </div>
+          <div class="mb-3">
+            <label class="form-label small fw-bold">श्रेणी *</label>
+            {{ album_form.category }}
+          </div>
+          <div class="mb-3">
+            <label class="form-label small fw-bold">विवरण</label>
+            {{ album_form.description }}
+          </div>
+          <div class="mb-3">
+            <label class="form-label small fw-bold">कवर फोटो</label>
+            {{ album_form.cover_image }}
+          </div>
+          <div class="mb-3">
+            <label class="form-label small fw-bold">कार्यक्रम दिनांक</label>
+            {{ album_form.event_date }}
+          </div>
+          <div class="form-check">
+            {{ album_form.is_published }}
+            <label class="form-check-label small" for="{{ album_form.is_published.id_for_label }}">वेबसाइट पर प्रकाशित रखें</label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">रद्द करें</button>
+          <button type="submit" class="btn btn-success btn-sm fw-bold">एल्बम बनाएं</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Upload Media Item -->
+<div class="modal fade" id="uploadItemModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-success text-white">
+        <h5 class="modal-title fw-bold">फोटो अथवा वीडियो अपलोड करें</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <form method="post" action="{% url 'gallery:dashboard_item_upload' %}" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="modal-body">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label small fw-bold">एल्बम चुनें *</label>
+              {{ item_form.album }}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label small fw-bold">फोटो का शीर्षक / नाम</label>
+              {{ item_form.title }}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label small fw-bold">मीडिया प्रकार</label>
+              {{ item_form.media_type }}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label small fw-bold">फोटो फ़ाइल</label>
+              {{ item_form.image }}
+            </div>
+            <div class="col-12">
+              <label class="form-label small fw-bold">वीडियो लिंक (YouTube)</label>
+              {{ item_form.video_url }}
+            </div>
+            <div class="col-12">
+              <label class="form-label small fw-bold">कैप्शन / संदर्भ</label>
+              {{ item_form.caption }}
+            </div>
+
+            <!-- Before and After Checkbox & Inputs -->
+            <div class="col-12 border-top pt-3">
+              <div class="form-check form-switch mb-2">
+                {{ item_form.is_before_after }}
+                <label class="form-check-label small fw-bold text-success" for="{{ item_form.is_before_after.id_for_label }}">
+                  यह "पहले और अब" (Before & After) की तुलनात्मक तस्वीर है
+                </label>
+              </div>
+              <div class="row g-2">
+                <div class="col-md-6">
+                  <label class="form-label small">पहले की फोटो (Before)</label>
+                  {{ item_form.before_image }}
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label small">अब की फोटो (After)</label>
+                  {{ item_form.after_image }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">रद्द करें</button>
+          <button type="submit" class="btn btn-success btn-sm fw-bold">अपलोड करें</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+{% load static currency_tags %}
+
+{% block title %}दान करें (Online Donation) | गाँव की बगिया{% endblock %}
+
+{% block content %}
+<section class="bg-bagiya-dark text-white py-5">
+  <div class="container text-center py-2">
+    <span class="badge bg-warning text-dark px-3 py-2 rounded-pill fw-bold mb-2">नेकी और भलाई का काम</span>
+    <h1 class="display-5 fw-bold text-white mb-2">गाँव की बगिया और कब्रिस्तान के लिए दान करें</h1>
+    <p class="lead text-white-50 mx-auto" style="max-width: 650px;">
+      आपका दिया छोटा सा सहयोग भी गाँव की बंजर ज़मीन को हरा-भरा करने और कब्रिस्तान की देखरेख में काम आएगा।
+    </p>
+  </div>
+</section>
+
+<section class="py-5">
+  <div class="container">
+    <div class="row g-5 justify-content-center">
+      <div class="col-lg-8">
+        <div class="card card-bagiya p-4 p-md-5 border-0 shadow-lg">
+          <h3 class="fw-bold text-bagiya-dark mb-4 border-bottom pb-3">
+            <i class="bi bi-heart-fill text-danger me-2"></i>दान फॉर्म (Donation Form)
+          </h3>
+
+          <form method="post" id="donationForm">
+            {% csrf_token %}
+
+            <!-- 1. Preset Amount Buttons -->
+            <div class="mb-4">
+              <label class="form-label fw-bold text-bagiya-dark">रकम चुनें (Select Amount):</label>
+              <div class="d-flex flex-wrap gap-2 mb-3">
+                {% for amt in suggested_amounts %}
+                  <button type="button" class="btn btn-outline-success btn-lg donation-preset-btn fw-bold px-3 py-2" data-amount="{{ amt }}">
+                    ₹{{ amt }}
+                  </button>
+                {% endfor %}
+              </div>
+              <div class="row g-2 align-items-center">
+                <div class="col-sm-6">
+                  <label class="small text-muted mb-1">या अपनी पसंद की रकम भरें (₹):</label>
+                  {{ form.amount }}
+                </div>
+              </div>
+            </div>
+
+            <!-- 2. Donation Purpose & Project -->
+            <div class="row g-3 mb-4">
+              <div class="col-md-6">
+                <label class="form-label fw-bold text-bagiya-dark">दान किस काम के लिए (Purpose):</label>
+                {{ form.purpose }}
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-bold text-bagiya-dark">प्रोजेक्ट (अगर चुनना चाहें):</label>
+                {{ form.related_project }}
+              </div>
+            </div>
+
+            <!-- 3. Donor Personal Details -->
+            <div class="mb-4 p-3 bg-light rounded-3 border">
+              <h5 class="fw-bold text-bagiya-dark mb-3">दान करने वाले की जानकारी</h5>
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label fw-bold small">पूरा नाम (Full Name) *</label>
+                  {{ form.donor_name }}
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label fw-bold small">मोबाइल नंबर (Mobile No.) *</label>
+                  {{ form.donor_phone }}
+                </div>
+                <div class="col-md-12">
+                  <label class="form-label small text-muted">ईमेल (वैकल्पिक / Optional)</label>
+                  {{ form.donor_email }}
+                </div>
+                <div class="col-12">
+                  <div class="form-check form-switch mt-1">
+                    {{ form.is_anonymous }}
+                    <label class="form-check-label fw-bold text-muted small" for="{{ form.is_anonymous.id_for_label }}">
+                      गुप्त दान रखें (वेबसाइट पर नाम न दिखाएं)
+                    </label>
+                  </div>
+                  <small class="text-muted d-block" style="font-size: 0.78rem;">
+                    अगर आप यह चुनेंगे तो वेबसाइट पर आपका नाम नहीं दिखेगा और फ़ोन नंबर भी सुरक्षित रहेगा।
+                  </small>
+                </div>
+              </div>
+            </div>
+
+            <!-- 4. Payment Method -->
+            <div class="mb-4">
+              <label class="form-label fw-bold text-bagiya-dark">पैसे देने का तरीका (Payment Method):</label>
+              {{ form.payment_method }}
+              <div class="form-text">
+                <i class="bi bi-info-circle me-1"></i>
+                <strong>UPI QR Code</strong> चुनने पर अगले पेज पर तुरंत QR कोड दिखेगा, जिसे स्कैन करके पेमेंट कर सकते हैं।
+              </div>
+            </div>
+
+            <!-- 5. Message -->
+            <div class="mb-4">
+              <label class="form-label fw-bold text-bagiya-dark">कोई संदेश या दुआ लिखना चाहें (Optional):</label>
+              {{ form.message }}
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="btn btn-bagiya-primary btn-lg w-100 py-3 shadow">
+              <i class="bi bi-shield-check me-2"></i> आगे बढ़ें (Proceed)
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Sidebar Info -->
+      <div class="col-lg-4">
+        <div class="card card-bagiya p-4 border-0 shadow mb-4">
+          <h5 class="fw-bold text-bagiya-dark mb-3"><i class="bi bi-shield-lock-fill text-success me-2"></i>साफ़ और पक्के हिसाब की गारंटी</h5>
+          <ul class="list-unstyled small text-muted d-flex flex-column gap-2 mb-0">
+            <li class="d-flex align-items-start gap-2">
+              <i class="bi bi-check-circle-fill text-success mt-1"></i>
+              <span>दान करते ही तुरंत <strong>डिजिटल रसीद</strong> मिलेगी।</span>
+            </li>
+            <li class="d-flex align-items-start gap-2">
+              <i class="bi bi-check-circle-fill text-success mt-1"></i>
+              <span>कमेटी द्वारा बैंक से मिलान होते ही हिसाब में दर्ज हो जाएगा।</span>
+            </li>
+            <li class="d-flex align-items-start gap-2">
+              <i class="bi bi-check-circle-fill text-success mt-1"></i>
+              <span>दान देने वाले का फ़ोन नंबर पूरी तरह सुरक्षित रहेगा।</span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="card card-bagiya p-4 border-0 shadow bg-success-subtle border-success border-opacity-25">
+          <h5 class="fw-bold text-success mb-2"><i class="bi bi-qr-code text-success me-2"></i>सीधा UPI पेमेंट</h5>
+          <p class="small text-muted mb-2">आप सीधे भी हमारी UPI ID पर दान भेज सकते हैं:</p>
+          <div class="p-2 bg-white rounded border d-flex justify-content-between align-items-center mb-3">
+            <span class="font-monospace fw-bold text-success">{{ site_settings.upi_id|default:"ganvkibagiya@upi" }}</span>
+            <button class="btn btn-sm btn-outline-success btn-copy" data-copy="{{ site_settings.upi_id|default:'ganvkibagiya@upi' }}">
+              <i class="bi bi-clipboard"></i> कॉपी
+            </button>
+          </div>
+          <small class="text-muted d-block">खाताधारक का नाम: <strong>{{ site_settings.upi_merchant_name|default:"Ganv Ki Bagiya Committee" }}</strong></small>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

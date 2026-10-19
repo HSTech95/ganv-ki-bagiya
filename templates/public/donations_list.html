@@ -1,0 +1,250 @@
+{% extends 'base.html' %}
+{% load static currency_tags %}
+
+{% block title %}आए हुए दान की सूची (Donations List) | गाँव की बगिया{% endblock %}
+
+{% block content %}
+<!-- Banner -->
+<section class="bg-bagiya-dark text-white py-5">
+  <div class="container text-center py-2">
+    <div class="d-flex justify-content-center align-items-center gap-2 mb-2">
+      <span class="badge bg-success-subtle text-success px-3 py-2 rounded-pill fw-bold">
+        <i class="bi bi-shield-check me-1"></i> साफ़ और खुला हिसाब-किताब
+      </span>
+      <span class="badge bg-warning text-dark px-3 py-2 rounded-pill fw-bold">
+        <i class="bi bi-broadcast me-1 text-danger"></i> लाइव रिकॉर्ड
+      </span>
+    </div>
+    <h1 class="display-5 fw-bold text-white mb-2">आए हुए दान की सूची (Donations List)</h1>
+    <p class="lead text-white-50 mx-auto mb-4" style="max-width: 680px;">
+      गाँव की बगिया और कब्रिस्तान के काम में आए हर एक रुपये का हिसाब यहाँ सबके सामने दर्ज है।
+    </p>
+
+    <div class="d-flex justify-content-center flex-wrap gap-3">
+      <a href="{% url 'donations:donate' %}" class="btn btn-warning btn-lg fw-bold px-4 py-2 shadow d-inline-flex align-items-center gap-2">
+        <i class="bi bi-heart-fill text-danger"></i>
+        <span>ऑनलाइन दान करें (Donate Now)</span>
+      </a>
+      <a href="{% url 'finance:transparency' %}" class="btn btn-outline-light btn-lg px-4 py-2 d-inline-flex align-items-center gap-2">
+        <i class="bi bi-journal-text"></i>
+        <span>खर्चे और हिसाब-किताब देखें</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- KPI Stats Ribbon -->
+<section class="py-4 bg-white border-bottom shadow-sm">
+  <div class="container">
+    <div class="row g-3 text-center">
+      <div class="col-md-3 col-6">
+        <div class="p-3 bg-light rounded-3 border">
+          <small class="text-muted d-block mb-1">कुल आया दान</small>
+          <div class="fs-4 fw-bold text-success font-monospace">{{ summary.total_confirmed_donations|inr }}</div>
+        </div>
+      </div>
+      <div class="col-md-3 col-6">
+        <div class="p-3 bg-light rounded-3 border">
+          <small class="text-muted d-block mb-1">कुल दान देने वाले</small>
+          <div class="fs-4 fw-bold text-dark">{{ summary.donor_count }} लोग</div>
+        </div>
+      </div>
+      <div class="col-md-3 col-6">
+        <div class="p-3 bg-light rounded-3 border">
+          <small class="text-muted d-block mb-1">कुल हुआ खर्चा</small>
+          <div class="fs-4 fw-bold text-danger font-monospace">{{ summary.total_expenses_paid|inr }}</div>
+        </div>
+      </div>
+      <div class="col-md-3 col-6">
+        <div class="p-3 bg-success-subtle rounded-3 border border-success">
+          <small class="text-success fw-bold d-block mb-1">बचा हुआ बैलेंस</small>
+          <div class="fs-4 fw-extrabold text-success font-monospace">{{ summary.current_book_balance|inr }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Filter Toolbar -->
+<section class="py-4 bg-bagiya-sand">
+  <div class="container">
+    <form method="get" class="card card-bagiya p-3 border-0 shadow-sm">
+      <div class="row g-2 align-items-end">
+        <div class="col-md-4">
+          <label class="form-label small fw-bold text-bagiya-dark mb-1">नाम या रसीद नंबर से खोजें:</label>
+          <div class="input-group input-group-sm">
+            <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+            <input type="text" name="search" value="{{ search }}" class="form-control" placeholder="उदा: रमेश कुमार, RCPT-2026...">
+          </div>
+        </div>
+
+        <div class="col-md-3">
+          <label class="form-label small fw-bold text-bagiya-dark mb-1">दान किस काम के लिए:</label>
+          <select name="purpose" class="form-select form-select-sm">
+            <option value="">-- सभी काम / उद्देश्य --</option>
+            {% for code, label in purposes %}
+              <option value="{{ code }}" {% if purpose_filter == code %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="col-md-3">
+          <label class="form-label small fw-bold text-bagiya-dark mb-1">प्रोजेक्ट के अनुसार:</label>
+          <select name="project" class="form-select form-select-sm">
+            <option value="">-- सभी प्रोजेक्ट्स --</option>
+            {% for proj in projects %}
+              <option value="{{ proj.id }}" {% if project_filter == proj.id %}selected{% endif %}>{{ proj.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="col-md-2 d-flex gap-2">
+          <button type="submit" class="btn btn-bagiya-primary btn-sm flex-grow-1">
+            <i class="bi bi-funnel-fill me-1"></i> फ़िल्टर
+          </button>
+          <a href="{% url 'donations:public_list' %}" class="btn btn-outline-secondary btn-sm" title="रीसेट">
+            <i class="bi bi-arrow-counterclockwise"></i>
+          </a>
+        </div>
+      </div>
+    </form>
+  </div>
+</section>
+
+<!-- Donations Directory Table -->
+<section class="py-4">
+  <div class="container">
+    <div class="card card-bagiya p-4 border-0 shadow">
+      <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 pb-2 border-bottom">
+        <div>
+          <h4 class="fw-bold text-bagiya-dark mb-0">दान की सूची (Donation Records)</h4>
+          <small class="text-muted">कुल <strong>{{ page_obj.paginator.count }}</strong> दान दर्ज हैं।</small>
+        </div>
+        <div class="small text-muted">
+          <i class="bi bi-lock-fill text-success me-1"></i>
+          प्राइवेसी सुरक्षा: फ़ोन नंबर के बीच के अंक छुपाए गए हैं
+        </div>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th scope="col">रसीद नंबर</th>
+              <th scope="col" style="min-width: 170px;">दानदाता (नाम)</th>
+              <th scope="col">दान का काम / प्रोजेक्ट</th>
+              <th scope="col">तारीख</th>
+              <th scope="col">तरीका</th>
+              <th scope="col" class="text-end">रकम (Amount)</th>
+              <th scope="col" class="text-center">स्थिति</th>
+              <th scope="col" class="text-center">रसीद</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for d in page_obj %}
+            <tr>
+              <td>
+                <span class="font-monospace small text-muted">{{ d.receipt_number }}</span>
+              </td>
+              <td>
+                <div class="d-flex align-items-center gap-2">
+                  <div class="rounded-circle bg-light border d-flex align-items-center justify-content-center text-success fw-bold" style="width: 34px; height: 34px; font-size: 0.85rem; flex-shrink: 0;">
+                    {% if d.is_anonymous %}
+                      <i class="bi bi-person-fill-lock text-muted"></i>
+                    {% else %}
+                      <i class="bi bi-person-check-fill"></i>
+                    {% endif %}
+                  </div>
+                  <div>
+                    <div class="fw-bold text-bagiya-dark small lh-sm">{{ d.public_donor_name }}</div>
+                    <small class="text-muted font-monospace d-block" style="font-size: 0.72rem;">{{ d.masked_phone }}</small>
+                  </div>
+                </div>
+                {% if d.message %}
+                <div class="mt-1 small text-muted fst-italic text-truncate" style="max-width: 230px;" title="{{ d.message }}">
+                  <i class="bi bi-chat-quote-fill text-success opacity-75 me-1"></i>"{{ d.message }}"
+                </div>
+                {% endif %}
+              </td>
+              <td>
+                <span class="badge bg-light text-dark border small fw-normal">{{ d.get_purpose_display }}</span>
+                {% if d.related_project %}
+                <small class="d-block text-success mt-1">
+                  <i class="bi bi-arrow-return-right me-1"></i>{{ d.related_project.name }}
+                </small>
+                {% endif %}
+              </td>
+              <td class="small text-muted text-nowrap">
+                {{ d.donation_date|date:"d M Y" }}
+              </td>
+              <td class="small text-muted">
+                {{ d.get_payment_method_display }}
+              </td>
+              <td class="text-end font-monospace fw-bold text-success fs-6 text-nowrap">
+                {{ d.amount|inr }}
+              </td>
+              <td class="text-center text-nowrap">
+                {% if d.payment_status == 'CONFIRMED' %}
+                  <span class="badge bg-success-subtle text-success border border-success-subtle">
+                    <i class="bi bi-check-circle-fill me-1"></i>सत्यापित
+                  </span>
+                {% else %}
+                  <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle">
+                    <i class="bi bi-hourglass-split me-1"></i>जांच जारी
+                  </span>
+                {% endif %}
+              </td>
+              <td class="text-center text-nowrap">
+                <a href="{% url 'donations:public_receipt' d.receipt_number %}" class="btn btn-outline-success btn-sm py-1 px-2" title="रसीद देखें">
+                  <i class="bi bi-receipt me-1"></i>रसीद
+                </a>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="8" class="text-center py-5 text-muted">
+                <i class="bi bi-inbox fs-1 d-block mb-2 text-secondary opacity-50"></i>
+                <h6 class="fw-bold text-muted">कोई दान रिकॉर्ड नहीं मिला।</h6>
+                <p class="small text-muted mb-3">इस खोज के अनुसार कोई रिकॉर्ड नहीं मिला।</p>
+                <a href="{% url 'donations:donate' %}" class="btn btn-success btn-sm">
+                  <i class="bi bi-heart-fill me-1"></i> पहला दान आप करें
+                </a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination Controls -->
+      {% if page_obj.has_other_pages %}
+      <nav class="mt-4 d-flex justify-content-center" aria-label="Page navigation">
+        <ul class="pagination pagination-sm mb-0">
+          {% if page_obj.has_previous %}
+            <li class="page-item">
+              <a class="page-link" href="?page=1{% if search %}&search={{ search }}{% endif %}{% if purpose_filter %}&purpose={{ purpose_filter }}{% endif %}{% if project_filter %}&project={{ project_filter }}{% endif %}">&laquo; पहला</a>
+            </li>
+            <li class="page-item">
+              <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search %}&search={{ search }}{% endif %}{% if purpose_filter %}&purpose={{ purpose_filter }}{% endif %}{% if project_filter %}&project={{ project_filter }}{% endif %}">पिछला</a>
+            </li>
+          {% endif %}
+
+          <li class="page-item active">
+            <span class="page-link">पेज {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+          </li>
+
+          {% if page_obj.has_next %}
+            <li class="page-item">
+              <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if search %}&search={{ search }}{% endif %}{% if purpose_filter %}&purpose={{ purpose_filter }}{% endif %}{% if project_filter %}&project={{ project_filter }}{% endif %}">अगला</a>
+            </li>
+            <li class="page-item">
+              <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if search %}&search={{ search }}{% endif %}{% if purpose_filter %}&purpose={{ purpose_filter }}{% endif %}{% if project_filter %}&project={{ project_filter }}{% endif %}">आख़िरी &raquo;</a>
+            </li>
+          {% endif %}
+        </ul>
+      </nav>
+      {% endif %}
+    </div>
+  </div>
+</section>
+{% endblock %}

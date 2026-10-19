@@ -1,0 +1,83 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% load static currency_tags %}
+
+{% block page_title %}बैंक समाधान (Bank Reconciliation){% endblock %}
+
+{% block content %}
+<div class="row g-4">
+  <div class="col-lg-5">
+    <div class="card card-bagiya p-4 border-0 shadow">
+      <h4 class="fw-bold text-bagiya-dark mb-2">बैंक समाधान दर्ज करें</h4>
+      <p class="small text-muted mb-4">
+        बैंक पासबुक/स्टेटमेंट के अंतिम बैलेंस का हमारे सिस्टम बही शेष से मिलान करें। अंतर होने पर चेतावनी दर्ज होगी।
+      </p>
+
+      <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+          <label class="form-label small fw-bold">बैंक खाता चुनें *</label>
+          {{ form.account }}
+        </div>
+        <div class="mb-3">
+          <label class="form-label small fw-bold">स्टेटमेंट दिनांक *</label>
+          {{ form.statement_date }}
+        </div>
+        <div class="mb-3">
+          <label class="form-label small fw-bold">बैंक स्टेटमेंट का क्लोजिंग बैलेंस (₹) *</label>
+          {{ form.statement_balance }}
+        </div>
+        <div class="mb-4">
+          <label class="form-label small fw-bold">ऑडिट टिप्पणी (यदि कोई अंतर हो)</label>
+          {{ form.notes }}
+        </div>
+
+        <button type="submit" class="btn btn-bagiya-primary w-100 py-3 shadow">
+          <i class="bi bi-check2-all me-1"></i> बैंक समाधान सत्यापित करें
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <div class="col-lg-7">
+    <div class="card card-bagiya p-4 border-0 shadow">
+      <h5 class="fw-bold text-bagiya-dark mb-3">पूर्व बैंक समाधान ऑडिट रिकॉर्ड</h5>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0 small">
+          <thead class="table-light">
+            <tr>
+              <th>स्टेटमेंट दिनांक</th>
+              <th>खाता</th>
+              <th class="text-end">बैंक बैलेंस</th>
+              <th class="text-end">सिस्टम बैलेंस</th>
+              <th class="text-end">अंतर (Diff)</th>
+              <th>स्थिति</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for r in reconciliations %}
+            <tr>
+              <td>{{ r.statement_date|date:"d M Y" }}</td>
+              <td class="fw-bold text-dark">{{ r.account.name }}</td>
+              <td class="text-end font-monospace">{{ r.statement_balance|inr }}</td>
+              <td class="text-end font-monospace">{{ r.book_balance|inr }}</td>
+              <td class="text-end font-monospace fw-bold {% if r.discrepancy == 0 %}text-success{% else %}text-danger{% endif %}">
+                {{ r.discrepancy|inr }}
+              </td>
+              <td>
+                {% if r.is_balanced %}
+                  <span class="badge bg-success-subtle text-success"><i class="bi bi-check-circle"></i> शत-प्रतिशत मेल</span>
+                {% else %}
+                  <span class="badge bg-danger-subtle text-danger"><i class="bi bi-exclamation-triangle"></i> अंतर चिन्हित</span>
+                {% endif %}
+              </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="6" class="text-center py-4 text-muted">कोई बैंक समाधान रिकॉर्ड नहीं।</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

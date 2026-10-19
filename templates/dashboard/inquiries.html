@@ -1,0 +1,165 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% load static %}
+
+{% block page_title %}जन-पूछताछ एवं स्वयंसेवक प्रबंधन{% endblock %}
+
+{% block content %}
+<ul class="nav nav-pills mb-4" id="inquiryTabs" role="tablist">
+  <li class="nav-item">
+    <button class="nav-link active" id="queries-tab" data-bs-toggle="pill" data-bs-target="#queries" type="button">
+      <i class="bi bi-chat-left-text me-1"></i> संपर्क व शिकायतें ({{ submissions.count }})
+    </button>
+  </li>
+  <li class="nav-item">
+    <button class="nav-link" id="volunteers-tab" data-bs-toggle="pill" data-bs-target="#volunteers" type="button">
+      <i class="bi bi-people me-1"></i> स्वयंसेवक रोस्टर ({{ volunteers.count }})
+    </button>
+  </li>
+  <li class="nav-item">
+    <button class="nav-link" id="notices-tab" data-bs-toggle="pill" data-bs-target="#notices" type="button">
+      <i class="bi bi-megaphone me-1"></i> सार्वजनिक सूचनाएं ({{ announcements.count }})
+    </button>
+  </li>
+</ul>
+
+<div class="tab-content" id="inquiryTabsContent">
+  <!-- Tab 1: Contact Submissions -->
+  <div class="tab-pane fade show active" id="queries" role="tabpanel">
+    <div class="card card-bagiya border-0 shadow-sm">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>दिनांक</th>
+              <th>नाम</th>
+              <th>मोबाइल</th>
+              <th>श्रेणी</th>
+              <th>विषय एवं संदेश</th>
+              <th>स्थिति</th>
+              <th class="text-center">कार्रवाई</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for s in submissions %}
+            <tr>
+              <td class="small text-muted">{{ s.created_at|date:"d M Y" }}</td>
+              <td class="fw-bold text-dark">{{ s.name }}</td>
+              <td class="font-monospace">{{ s.phone }}</td>
+              <td><span class="badge bg-light text-dark border">{{ s.get_category_display }}</span></td>
+              <td>
+                <div class="fw-bold small">{{ s.subject }}</div>
+                <small class="text-muted">{{ s.message|truncatewords:15 }}</small>
+                {% if s.resolution_notes %}
+                  <div class="small text-success mt-1"><strong>निस्तारण:</strong> {{ s.resolution_notes }}</div>
+                {% endif %}
+              </td>
+              <td>
+                {% if s.is_resolved %}
+                  <span class="badge bg-success-subtle text-success">निस्तारित</span>
+                {% else %}
+                  <span class="badge bg-warning-subtle text-warning">लंबित</span>
+                {% endif %}
+              </td>
+              <td class="text-center">
+                {% if not s.is_resolved and user.can_approve_expenses %}
+                <button type="button" class="btn btn-outline-success btn-sm" data-bs-toggle="modal" data-bs-target="#resolveModal{{ s.id }}">
+                  निस्तारित करें
+                </button>
+
+                <!-- Modal -->
+                <div class="modal fade text-start" id="resolveModal{{ s.id }}" tabindex="-1" aria-hidden="true">
+                  <div class="modal-dialog">
+                    <div class="modal-content">
+                      <div class="modal-header bg-success text-white">
+                        <h6 class="modal-title fw-bold">शिकायत / पूछताछ निस्तारण</h6>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                      </div>
+                      <form method="post" action="{% url 'content:resolve_inquiry' s.id %}">
+                        {% csrf_token %}
+                        <div class="modal-body">
+                          <p class="small text-muted mb-2"><strong>संदेश:</strong> {{ s.message }}</p>
+                          <label class="form-label small fw-bold">निस्तारण विवरण / क्या समाधान हुआ *</label>
+                          <textarea name="notes" class="form-control" rows="3" required placeholder="कार्रवाई का विवरण दर्ज करें..."></textarea>
+                        </div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">रद्द करें</button>
+                          <button type="submit" class="btn btn-success btn-sm fw-bold">निस्तारित घोषित करें</button>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+                {% else %}
+                  <span class="text-muted small">-</span>
+                {% endif %}
+              </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="7" class="text-center py-4 text-muted">कोई पूछताछ नहीं मिली।</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab 2: Volunteers -->
+  <div class="tab-pane fade" id="volunteers" role="tabpanel">
+    <div class="card card-bagiya border-0 shadow-sm">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>पंजीकरण दिनांक</th>
+              <th>पूरा नाम</th>
+              <th>मोबाइल</th>
+              <th>गाँव / टोला</th>
+              <th>कौशल व रुचि</th>
+              <th>उपलब्धता</th>
+              <th>स्थिति</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for v in volunteers %}
+            <tr>
+              <td class="small text-muted">{{ v.created_at|date:"d M Y" }}</td>
+              <td class="fw-bold text-dark">{{ v.full_name }}</td>
+              <td class="font-monospace">{{ v.phone }}</td>
+              <td>{{ v.village_mohalla }}</td>
+              <td><span class="badge bg-light text-success border">{{ v.skills_interest }}</span></td>
+              <td class="small text-muted">{{ v.availability }}</td>
+              <td><span class="badge bg-success-subtle text-success">{{ v.get_status_display }}</span></td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="7" class="text-center py-4 text-muted">कोई स्वयंसेवक नहीं मिला।</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab 3: Announcements -->
+  <div class="tab-pane fade" id="notices" role="tabpanel">
+    <div class="card card-bagiya p-4 border-0 shadow-sm">
+      <h5 class="fw-bold text-bagiya-dark mb-3">वेबसाइट सूचनाएं</h5>
+      <ul class="list-group list-group-flush">
+        {% for a in announcements %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          <div>
+            <span class="badge bg-warning text-dark me-2">{{ a.badge_text }}</span>
+            <strong>{{ a.title }}</strong>
+            <p class="small text-muted mb-0 mt-1">{{ a.content }}</p>
+          </div>
+          <span class="badge bg-{% if a.is_active %}success{% else %}secondary{% endif %}">
+            {% if a.is_active %}सक्रिय{% else %}निष्क्रिय{% endif %}
+          </span>
+        </li>
+        {% empty %}
+        <li class="list-group-item text-center py-3 text-muted">कोई सूचना नहीं।</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+</div>
+{% endblock %}

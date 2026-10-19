@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}स्वयंसेवक बनें (Volunteer) | गाँव की बगिया{% endblock %}
+
+{% block content %}
+<section class="bg-bagiya-dark text-white py-5">
+  <div class="container text-center py-2">
+    <span class="badge bg-warning text-dark px-3 py-2 rounded-pill fw-bold mb-2">श्रमदान करें, साथ दें</span>
+    <h1 class="display-5 fw-bold text-white mb-2">गाँव की बगिया — स्वयंसेवक बनें</h1>
+    <p class="lead text-white-50 mx-auto" style="max-width: 650px;">
+      गाँव की हरियाली और कब्रिस्तान की साफ़-सफ़ाई के लिए अपना थोड़ा समय और मेहनत दें।
+    </p>
+  </div>
+</section>
+
+<section class="py-5">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        <div class="card card-bagiya p-4 p-md-5 border-0 shadow-lg">
+          <h3 class="fw-bold text-bagiya-dark mb-2">
+            <i class="bi bi-hand-thumbs-up-fill text-success me-2"></i>स्वयंसेवक फॉर्म
+          </h3>
+          <p class="small text-muted mb-4">
+            कृपया नीचे अपनी जानकारी भरें। पेड़ लगाने या साफ़-सफ़ाई के समय कमेटी आपसे संपर्क करेगी।
+          </p>
+
+          <form method="post">
+            {% csrf_token %}
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label small fw-bold">पूरा नाम (Full Name) *</label>
+                {{ form.full_name }}
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-bold">मोबाइल नंबर (WhatsApp / Call) *</label>
+                {{ form.phone }}
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-bold">ईमेल (अगर हो तो)</label>
+                {{ form.email }}
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-bold">गाँव / मोहल्ला *</label>
+                {{ form.village_mohalla }}
+              </div>
+              <div class="col-12">
+                <label class="form-label small fw-bold">आप क्या काम कर सकते हैं (Skills / Interest) *</label>
+                {{ form.skills_interest }}
+                <div class="form-text small">उदा. पेड़ लगाना, मिट्टी का काम, साफ़-सफ़ाई, पानी देना, लाइट/बिजली, फ़ोटो खींचना आदि।</div>
+              </div>
+              <div class="col-12">
+                <label class="form-label small fw-bold">कब समय दे सकते हैं (Availability) *</label>
+                {{ form.availability }}
+                <div class="form-text small">उदा. सिर्फ़ इतवार (Sunday), सुबह या शाम, किसी भी दिन।</div>
+              </div>
+              <div class="col-12 mt-4">
+                <button type="submit" class="btn btn-bagiya-primary btn-lg w-100 py-3 shadow">
+                  <i class="bi bi-check-circle-fill me-2"></i> फॉर्म जमा करें (जुड़ें)
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

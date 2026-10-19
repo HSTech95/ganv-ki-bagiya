@@ -1,0 +1,97 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% load static %}
+
+{% block page_title %}मैनुअल दान प्रविष्टि दर्ज करें{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <div class="card card-bagiya p-4 border-0 shadow">
+      <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
+        <div>
+          <h4 class="fw-bold text-bagiya-dark mb-0">नया दान दर्ज करें (Record Donation)</h4>
+          <small class="text-muted">खजांची / कोषाध्यक्ष द्वारा नकद, चेक अथवा सीधे बैंक ट्रांसफर दान की प्रविष्टि।</small>
+        </div>
+        <a href="{% url 'donations:dashboard_list' %}" class="btn btn-outline-secondary btn-sm">
+          <i class="bi bi-arrow-left me-1"></i> वापस जाएं
+        </a>
+      </div>
+
+      <form method="post">
+        {% csrf_token %}
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label small fw-bold">दानदाता का नाम *</label>
+            {{ form.donor_name }}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small fw-bold">मोबाइल नंबर</label>
+            {{ form.donor_phone }}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small fw-bold">गाँव / पता</label>
+            {{ form.donor_address }}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small fw-bold">ईमेल पता (वैकल्पिक)</label>
+            {{ form.donor_email }}
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label small fw-bold text-success">प्राप्त दान राशि (₹) *</label>
+            {{ form.amount }}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small fw-bold">दान प्राप्ति दिनांक *</label>
+            {{ form.donation_date }}
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label small fw-bold">दान का उद्देश्य *</label>
+            {{ form.purpose }}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small fw-bold">संबंधित प्रोजेक्ट (यदि कोई हो)</label>
+            {{ form.related_project }}
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label small fw-bold">भुगतान माध्यम *</label>
+            {{ form.payment_method }}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small fw-bold text-primary">जमा खाता (Fund Account) *</label>
+            {{ form.destination_account }}
+            <small class="form-text">लेजर में इस खाते की राशि स्वतः बढ़ जाएगी।</small>
+          </div>
+
+          <div class="col-md-12">
+            <label class="form-label small fw-bold">रसीद / चेक नंबर / UTR रेफरेंस</label>
+            {{ form.transaction_reference }}
+          </div>
+
+          <div class="col-12">
+            <div class="form-check form-switch">
+              {{ form.is_anonymous }}
+              <label class="form-check-label small fw-bold text-muted" for="{{ form.is_anonymous.id_for_label }}">
+                सार्वजनिक रिपोर्ट में गुप्त दान रखें (Anonymous)
+              </label>
+            </div>
+          </div>
+
+          <div class="col-12">
+            <label class="form-label small fw-bold">संदेश अथवा प्रशासनिक टिप्पणी</label>
+            {{ form.message }}
+          </div>
+
+          <div class="col-12 mt-4">
+            <button type="submit" class="btn btn-bagiya-primary btn-lg w-100 py-3 shadow">
+              <i class="bi bi-check2-circle me-1"></i> दान दर्ज करें एवं लेजर में पोस्ट करें
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

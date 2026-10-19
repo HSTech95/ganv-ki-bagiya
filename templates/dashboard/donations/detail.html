@@ -1,0 +1,153 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% load static currency_tags %}
+
+{% block page_title %}दान विवरण | {{ donation.donation_id }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <a href="{% url 'donations:dashboard_list' %}" class="btn btn-outline-secondary btn-sm mb-1">
+      <i class="bi bi-arrow-left me-1"></i> समस्त दान सूची
+    </a>
+    <h4 class="fw-bold text-bagiya-dark mb-0">दान विवरण (Donation Details)</h4>
+  </div>
+  <div class="d-flex gap-2">
+    <a href="{% url 'donations:public_receipt' donation.receipt_number %}" target="_blank" class="btn btn-outline-success btn-sm">
+      <i class="bi bi-printer me-1"></i> डिजिटल रसीद देखें
+    </a>
+  </div>
+</div>
+
+<div class="row g-4">
+  <div class="col-lg-8">
+    <div class="card card-bagiya p-4 border-0 shadow-sm mb-4">
+      <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-3">
+        <div>
+          <span class="text-muted small">रसीद संख्या:</span>
+          <h5 class="fw-bold font-monospace text-dark mb-0">{{ donation.receipt_number }}</h5>
+        </div>
+        <div class="text-end">
+          <span class="text-muted small d-block">दान स्थिति:</span>
+          {% if donation.payment_status == 'CONFIRMED' %}
+            <span class="badge bg-success px-3 py-2 fs-6"><i class="bi bi-check-circle me-1"></i> सत्यापित व लेजर में दर्ज</span>
+          {% elif donation.payment_status == 'PENDING' %}
+            <span class="badge bg-warning text-dark px-3 py-2 fs-6"><i class="bi bi-clock me-1"></i> सत्यापन प्रतीक्षित</span>
+          {% else %}
+            <span class="badge bg-danger px-3 py-2 fs-6">{{ donation.get_payment_status_display }}</span>
+          {% endif %}
+        </div>
+      </div>
+
+      <table class="table table-bordered align-middle">
+        <tbody>
+          <tr>
+            <th class="bg-light" style="width: 35%;">दानदाता का नाम:</th>
+            <td class="fw-bold text-bagiya-dark fs-5">{{ donation.donor_name }}</td>
+          </tr>
+          <tr>
+            <th class="bg-light">मोबाइल नंबर:</th>
+            <td class="font-monospace">{{ donation.donor_phone|default:"उपलब्ध नहीं" }}</td>
+          </tr>
+          <tr>
+            <th class="bg-light">ईमेल:</th>
+            <td>{{ donation.donor_email|default:"-" }}</td>
+          </tr>
+          <tr>
+            <th class="bg-light">दान राशि:</th>
+            <td class="fw-bold text-success fs-4">{{ donation.amount|inr }}</td>
+          </tr>
+          <tr>
+            <th class="bg-light">उद्देश्य:</th>
+            <td class="fw-semibold text-dark">{{ donation.get_purpose_display }}</td>
+          </tr>
+          <tr>
+            <th class="bg-light">संबंधित प्रोजेक्ट:</th>
+            <td>{{ donation.related_project.name|default:"सामान्य कोष (General Fund)" }}</td>
+          </tr>
+          <tr>
+            <th class="bg-light">भुगतान माध्यम:</th>
+            <td><span class="badge bg-light text-dark border">{{ donation.get_payment_method_display }}</span></td>
+          </tr>
+          <tr>
+            <th class="bg-light">संदर्भ (UTR / Ref ID):</th>
+            <td class="font-monospace fw-bold text-primary">{{ donation.transaction_reference|default:"-" }}</td>
+          </tr>
+          <tr>
+            <th class="bg-light">जमा खाता (Account):</th>
+            <td>{{ donation.destination_account.name|default:"निर्धारित नहीं" }}</td>
+          </tr>
+          <tr>
+            <th class="bg-light">दान प्राप्ति दिनांक:</th>
+            <td>{{ donation.donation_date|date:"d F Y" }}</td>
+          </tr>
+          <tr>
+            <th class="bg-light">लेजर स्थिति:</th>
+            <td>
+              {% if donation.is_posted_to_ledger %}
+                <span class="text-success fw-bold"><i class="bi bi-check-circle-fill"></i> वित्तीय लेजर में पोस्टेड</span>
+              {% else %}
+                <span class="text-muted"><i class="bi bi-dash-circle"></i> लेजर में पोस्ट नहीं हुआ</span>
+              {% endif %}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      {% if donation.message %}
+      <div class="p-3 bg-light rounded-3 mt-3">
+        <small class="text-muted fw-bold d-block mb-1">दानदाता का संदेश / दुआ:</small>
+        <p class="mb-0 italic text-dark">"{{ donation.message }}"</p>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Right Column: Verification & Proof Slip -->
+  <div class="col-lg-4">
+    <!-- Verification Action Box (If Pending) -->
+    {% if donation.payment_status == 'PENDING' and user.can_manage_finances %}
+    <div class="card card-bagiya p-4 border-2 border-warning shadow-sm mb-4 bg-warning-subtle bg-opacity-25">
+      <h5 class="fw-bold text-dark mb-2">
+        <i class="bi bi-shield-check text-warning me-2"></i>दान सत्यापन (Verification)
+      </h5>
+      <p class="small text-muted mb-3">
+        बैंक खाते अथवा नकद पेटी में राशि प्राप्त होने की पुष्टि करें। सत्यापन करते ही खाता बैलेंस अपडेट होगा और लेजर प्रविष्टि स्वतः हो जाएगी।
+      </p>
+
+      <form method="post" action="{% url 'donations:dashboard_verify' donation.donation_id %}">
+        {% csrf_token %}
+        <div class="mb-3">
+          <label class="form-label small fw-bold">जमा खाता चुनें (Deposit Into):</label>
+          <select name="destination_account" class="form-select form-select-sm" required>
+            {% for acc in fund_accounts %}
+              <option value="{{ acc.id }}" {% if donation.destination_account_id == acc.id %}selected{% endif %}>
+                {{ acc.name }} (शेष: {{ acc.current_balance|inr }})
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <button type="submit" class="btn btn-success w-100 py-2 fw-bold shadow-sm" onclick="return confirm('क्या आप सुनिश्चित हैं कि ₹{{ donation.amount }} प्राप्त हो गए हैं और लेजर में जोड़ना चाहते हैं?');">
+          <i class="bi bi-check2-circle me-1"></i> सत्यापित करें एवं लेजर में जोड़ें
+        </button>
+      </form>
+    </div>
+    {% endif %}
+
+    <!-- Uploaded Slip / Screenshot -->
+    <div class="card card-bagiya p-4 border-0 shadow-sm">
+      <h6 class="fw-bold text-bagiya-dark mb-3">भुगतान प्रमाण (Proof Slip)</h6>
+      {% if donation.payment_proof %}
+        <a href="{{ donation.payment_proof.url }}" target="_blank">
+          <img src="{{ donation.payment_proof.url }}" class="img-fluid rounded border shadow-sm" alt="Payment Proof">
+        </a>
+        <a href="{{ donation.payment_proof.url }}" target="_blank" class="btn btn-outline-secondary btn-sm w-100 mt-2">
+          <i class="bi bi-download me-1"></i> पूर्ण फ़ाइल देखें
+        </a>
+      {% else %}
+        <p class="text-muted small mb-0">कोई स्क्रीनशॉट अथवा स्लिप अपलोड नहीं की गई।</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,355 @@
+{% extends 'base.html' %}
+{% load static currency_tags %}
+
+{% block title %}पैसों का हिसाब-किताब (Transparency) | गाँव की बगिया{% endblock %}
+
+{% block content %}
+<!-- Banner -->
+<section class="bg-bagiya-dark text-white py-5">
+  <div class="container text-center py-2">
+    <span class="badge bg-success-subtle text-success px-3 py-2 rounded-pill fw-bold mb-2">साफ़ और खुला हिसाब-किताब</span>
+    <h1 class="display-5 fw-bold text-white mb-2">पैसों का पूरा हिसाब-किताब (Transparency)</h1>
+    <p class="lead text-white-50 mx-auto" style="max-width: 680px;">
+      गाँव की बगिया कमेटी में आए एक-एक रुपये और खर्च का पूरा हिसाब यहाँ सबके सामने मौजूद है।
+    </p>
+  </div>
+</section>
+
+<!-- Filter Toolbar -->
+<section class="py-3 bg-white border-bottom shadow-sm">
+  <div class="container">
+    <form method="get" class="row g-2 align-items-center">
+      <div class="col-md-3">
+        <label class="small text-muted fw-bold d-block">शुरुआती तारीख (From):</label>
+        <input type="date" name="start_date" value="{{ start_date }}" class="form-control form-control-sm">
+      </div>
+      <div class="col-md-3">
+        <label class="small text-muted fw-bold d-block">आख़िरी तारीख (To):</label>
+        <input type="date" name="end_date" value="{{ end_date }}" class="form-control form-control-sm">
+      </div>
+      <div class="col-md-3">
+        <label class="small text-muted fw-bold d-block">प्रोजेक्ट के अनुसार:</label>
+        <select name="project" class="form-select form-select-sm">
+          <option value="">-- सभी प्रोजेक्ट्स --</option>
+          {% for p in all_projects %}
+            <option value="{{ p.id }}" {% if selected_project == p.id %}selected{% endif %}>{{ p.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-3 d-flex align-items-end gap-2">
+        <button type="submit" class="btn btn-bagiya-primary btn-sm flex-grow-1">
+          <i class="bi bi-filter"></i> फ़िल्टर लगाएं
+        </button>
+        <a href="{% url 'finance:transparency' %}" class="btn btn-outline-secondary btn-sm">
+          रीसेट
+        </a>
+      </div>
+    </form>
+  </div>
+</section>
+
+<section class="py-5">
+  <div class="container">
+    
+    <!-- 1. Executive Summary Cards -->
+    <div class="row g-4 mb-5">
+      <div class="col-lg-3 col-md-6">
+        <div class="stat-card border-top border-4 border-success">
+          <div class="text-muted small fw-bold text-uppercase">कुल आया दान (Income)</div>
+          <div class="stat-value text-success my-2">{{ summary.total_confirmed_donations|inr }}</div>
+          <div class="small text-muted"><i class="bi bi-person-check-fill text-success me-1"></i> {{ summary.donor_count }} दानदाता</div>
+        </div>
+      </div>
+
+      <div class="col-lg-3 col-md-6">
+        <div class="stat-card border-top border-4 border-danger">
+          <div class="text-muted small fw-bold text-uppercase">कुल हुआ खर्चा (Expenses)</div>
+          <div class="stat-value text-danger my-2">{{ summary.total_expenses_paid|inr }}</div>
+          <div class="small text-muted"><i class="bi bi-receipt text-danger me-1"></i> पक्के बिलों के साथ भुगतान</div>
+        </div>
+      </div>
+
+      <div class="col-lg-3 col-md-6">
+        <div class="stat-card border-top border-4 border-primary">
+          <div class="text-muted small fw-bold text-uppercase">बचा हुआ सुरक्षित बैलेंस (Net Balance)</div>
+          <div class="stat-value text-primary my-2">{{ summary.current_book_balance|inr }}</div>
+          <div class="small text-muted">बैलेंस = कुल आमदनी - कुल खर्चा</div>
+        </div>
+      </div>
+
+      <div class="col-lg-3 col-md-6">
+        <div class="stat-card border-top border-4 border-warning">
+          <div class="text-muted small fw-bold text-uppercase">पैसों का ब्योरा (बैंक और नकद)</div>
+          <div class="small mt-2">नकद पेटी: <strong class="text-dark">{{ summary.cash_balance|inr }}</strong></div>
+          <div class="small">बैंक खाता: <strong class="text-dark">{{ summary.bank_balance|inr }}</strong></div>
+          <div class="small text-muted mt-1" style="font-size: 0.75rem;">
+            अंतिम मिलान: {{ summary.last_reconciliation_date|default:"पूरा हुआ" }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. Interactive Chart.js Graphs -->
+    <div class="row g-4 mb-5">
+      <!-- Monthly Income vs Expenses -->
+      <div class="col-lg-8">
+        <div class="card card-bagiya h-100 p-4 border-0 shadow">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+              <h5 class="fw-bold text-bagiya-dark mb-0">महीनेवार आमदनी और खर्चे का चार्ट</h5>
+              <small class="text-muted">हर महीने आया दान और हुआ खर्चा</small>
+            </div>
+            <i class="bi bi-bar-chart-line-fill fs-3 text-success"></i>
+          </div>
+          <div style="height: 300px;">
+            <canvas id="monthlyChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Category Breakdown Doughnut -->
+      <div class="col-lg-4">
+        <div class="card card-bagiya h-100 p-4 border-0 shadow">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+              <h5 class="fw-bold text-bagiya-dark mb-0">खर्चे की मदें (Categories)</h5>
+              <small class="text-muted">किस काम में कितना खर्च हुआ</small>
+            </div>
+            <i class="bi bi-pie-chart-fill fs-3 text-warning"></i>
+          </div>
+          <div style="height: 280px;" class="d-flex align-items-center justify-content-center">
+            <canvas id="categoryChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. Project-wise Financial Summaries -->
+    <div class="card card-bagiya p-4 border-0 shadow mb-5">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+          <h4 class="fw-bold text-bagiya-dark mb-1">प्रोजेक्ट के हिसाब से बजट और खर्चा</h4>
+          <p class="small text-muted mb-0">बगिया और कब्रिस्तान के हर काम का बजट, खर्चा और काम की प्रगति।</p>
+        </div>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table table-bagiya align-middle mb-0">
+          <thead>
+            <tr>
+              <th>प्रोजेक्ट का नाम</th>
+              <th>काम का प्रकार</th>
+              <th>तय बजट</th>
+              <th>अब तक खर्च</th>
+              <th>बचा बजट</th>
+              <th>काम की प्रगति (%)</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in projects_breakdown %}
+            <tr>
+              <td class="fw-bold text-bagiya-dark">{{ row.project.name }}</td>
+              <td><span class="badge bg-light text-dark border">{{ row.project.get_project_type_display }}</span></td>
+              <td class="font-monospace fw-bold">{{ row.budget|inr }}</td>
+              <td class="font-monospace text-danger">{{ row.spent|inr }}</td>
+              <td class="font-monospace text-success">{{ row.remaining|inr }}</td>
+              <td style="width: 160px;">
+                <div class="d-flex align-items-center gap-2">
+                  <div class="progress progress-bagiya flex-grow-1" style="height: 8px;">
+                    <div class="progress-bar progress-bar-bagiya" role="progressbar" style="width: {{ row.progress_percent }}%;"></div>
+                  </div>
+                  <span class="small fw-bold text-muted">{{ row.progress_percent }}%</span>
+                </div>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="6" class="text-center py-4 text-muted">कोई प्रोजेक्ट डेटा उपलब्ध नहीं है।</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 4. Recent Public Activity Logs (Donations & Paid Expenses) -->
+    <div class="row g-4">
+      <!-- Recent Confirmed Donations (Privacy Preserved) -->
+      <div class="col-lg-6">
+        <div class="card card-bagiya h-100 p-4 border-0 shadow">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="fw-bold text-bagiya-dark mb-0">
+              <i class="bi bi-cash-stack text-success me-2"></i>हाल में आए दान (Recent Donations)
+            </h5>
+            <a href="{% url 'donations:public_list' %}" class="badge bg-success-subtle text-success text-decoration-none">
+              सभी देखें &rarr;
+            </a>
+          </div>
+
+          <div class="table-responsive">
+            <table class="table table-sm table-hover align-middle">
+              <thead class="table-light">
+                <tr>
+                  <th>तारीख</th>
+                  <th>दानदाता</th>
+                  <th>दान का काम</th>
+                  <th class="text-end">रकम</th>
+                  <th class="text-center">रसीद</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for d in recent_donations %}
+                <tr>
+                  <td class="small text-muted text-nowrap">{{ d.donation_date|date:"d M Y" }}</td>
+                  <td>
+                    <div class="fw-semibold small">{{ d.public_donor_name }}</div>
+                    <small class="text-muted font-monospace" style="font-size: 0.72rem;">{{ d.masked_phone }}</small>
+                  </td>
+                  <td>
+                    <span class="badge bg-light text-muted border">{{ d.get_purpose_display|truncatewords:2 }}</span>
+                  </td>
+                  <td class="text-end fw-bold text-success font-monospace text-nowrap">{{ d.amount|inr }}</td>
+                  <td class="text-center text-nowrap">
+                    <a href="{% url 'donations:public_receipt' d.receipt_number %}" class="btn btn-outline-success btn-xs py-0 px-2" style="font-size: 0.75rem;" title="रसीद">
+                      <i class="bi bi-receipt"></i>
+                    </a>
+                  </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="5" class="text-center py-3 text-muted">कोई दान रिकॉर्ड नहीं।</td></tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          <div class="pt-2 text-end">
+            <a href="{% url 'donations:public_list' %}" class="small text-success fw-bold text-decoration-none">
+              पूरी दान सूची और रसीदें देखें &rarr;
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Expenses Paid -->
+      <div class="col-lg-6">
+        <div class="card card-bagiya h-100 p-4 border-0 shadow">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="fw-bold text-bagiya-dark mb-0">
+              <i class="bi bi-receipt-cutoff text-danger me-2"></i>हाल में हुए खर्चे (Recent Expenses)
+            </h5>
+            <span class="badge bg-danger-subtle text-danger">भुगतान हुआ</span>
+          </div>
+
+          <div class="table-responsive">
+            <table class="table table-sm table-hover align-middle">
+              <thead class="table-light">
+                <tr>
+                  <th>तारीख</th>
+                  <th>खर्च का विवरण</th>
+                  <th>दुकानदार / व्यक्ति</th>
+                  <th class="text-end">रकम</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for e in recent_expenses %}
+                <tr>
+                  <td class="small text-muted">{{ e.expense_date|date:"d M Y" }}</td>
+                  <td>
+                    <div class="fw-semibold small">{{ e.description }}</div>
+                    <small class="text-muted" style="font-size: 0.72rem;">{{ e.get_category_display }}</small>
+                  </td>
+                  <td class="small text-muted">{{ e.vendor_name }}</td>
+                  <td class="text-end fw-bold text-danger font-monospace">{{ e.amount|inr }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="4" class="text-center py-3 text-muted">कोई खर्च रिकॉर्ड नहीं।</td></tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  // Chart 1: Monthly Income vs Expense
+  const monthlyCtx = document.getElementById("monthlyChart");
+  if (monthlyCtx) {
+    const monthlyLabels = {{ chart_data.monthly_labels|safe }};
+    const monthlyIncome = {{ chart_data.monthly_income|safe }};
+    const monthlyExpense = {{ chart_data.monthly_expense|safe }};
+
+    new Chart(monthlyCtx, {
+      type: "bar",
+      data: {
+        labels: monthlyLabels,
+        datasets: [
+          {
+            label: "आया दान (Income)",
+            data: monthlyIncome,
+            backgroundColor: "#198754",
+            borderRadius: 6
+          },
+          {
+            label: "हुआ खर्चा (Expense)",
+            data: monthlyExpense,
+            backgroundColor: "#dc3545",
+            borderRadius: 6
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: "top" }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              callback: function(value) { return "₹" + value.toLocaleString("en-IN"); }
+            }
+          }
+        }
+      }
+    });
+  }
+
+  // Chart 2: Category Breakdown
+  const catCtx = document.getElementById("categoryChart");
+  if (catCtx) {
+    const catLabels = {{ chart_data.category_labels|safe }};
+    const catData = {{ chart_data.category_data|safe }};
+
+    if (catData.length > 0) {
+      new Chart(catCtx, {
+        type: "doughnut",
+        data: {
+          labels: catLabels,
+          datasets: [{
+            data: catData,
+            backgroundColor: [
+              "#198754", "#20c997", "#0d6efd", "#ffc107", "#fd7e14",
+              "#6f42c1", "#d63384", "#6c757d", "#795548", "#212529"
+            ]
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: "bottom", labels: { boxWidth: 12, font: { size: 10 } } }
+          }
+        }
+      });
+    }
+  }
+});
+</script>
+{% endblock %}

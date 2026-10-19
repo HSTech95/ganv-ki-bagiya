@@ -1,0 +1,263 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% load static currency_tags %}
+
+{% block page_title %}यूपीआई समाधान व यूटीआर मिलान (UPI Reconciliation){% endblock %}
+
+{% block content %}
+<!-- Stat Counters -->
+<div class="row g-3 mb-4">
+  <div class="col-md-4">
+    <div class="card card-bagiya p-3 border-0 shadow-sm border-start border-4 border-warning">
+      <div class="d-flex align-items-center justify-content-between">
+        <div>
+          <div class="text-muted small fw-bold">सत्यापन हेतु लंबित दान (Pending Donations)</div>
+          <div class="fs-4 fw-bold text-dark mt-1">{{ pending_donations_count }}</div>
+        </div>
+        <div class="rounded-circle bg-warning bg-opacity-10 p-3 text-warning">
+          <i class="bi bi-hourglass-split fs-4"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="card card-bagiya p-3 border-0 shadow-sm border-start border-4 border-primary">
+      <div class="d-flex align-items-center justify-content-between">
+        <div>
+          <div class="text-muted small fw-bold">अमिलान बैंक यूटीआर (Unmatched Bank UTRs)</div>
+          <div class="fs-4 fw-bold text-dark mt-1">{{ unmatched_records_count }}</div>
+        </div>
+        <div class="rounded-circle bg-primary bg-opacity-10 p-3 text-primary">
+          <i class="bi bi-bank fs-4"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="card card-bagiya p-3 border-0 shadow-sm border-start border-4 border-success">
+      <div class="d-flex align-items-center justify-content-between">
+        <div>
+          <div class="text-muted small fw-bold">सफल मिलान (Reconciled Donations)</div>
+          <div class="fs-4 fw-bold text-success mt-1">{{ matched_records_count }}</div>
+        </div>
+        <div class="rounded-circle bg-success bg-opacity-10 p-3 text-success">
+          <i class="bi bi-check-circle-fill fs-4"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4">
+  <!-- Left Column: Add Bank Statement UTR Record -->
+  <div class="col-lg-4">
+    <div class="card card-bagiya p-4 border-0 shadow-sm mb-4">
+      <h5 class="fw-bold text-bagiya-dark mb-2">बैंक क्रेडिट यूटीआर जोड़ें</h5>
+      <p class="small text-muted mb-3">
+        बैंक स्टेटमेंट या नेट-बैंकिंग से प्राप्त UPI UTR और क्रेडिट राशि दर्ज करें।
+      </p>
+
+      <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+          <label class="form-label small fw-bold">यूटीआर / रेफरेंस नंबर (UTR) *</label>
+          {{ form.utr_number }}
+        </div>
+        <div class="mb-3">
+          <label class="form-label small fw-bold">स्टेटमेंट दिनांक *</label>
+          {{ form.bank_statement_date }}
+        </div>
+        <div class="mb-3">
+          <label class="form-label small fw-bold">प्राप्त राशि (₹) *</label>
+          {{ form.amount }}
+        </div>
+        <div class="mb-3">
+          <label class="form-label small fw-bold">भेजने वाले का नाम / UPI ID</label>
+          {{ form.payer_details }}
+        </div>
+        <div class="mb-3">
+          <label class="form-label small fw-bold">टिप्पणी</label>
+          {{ form.notes }}
+        </div>
+
+        <button type="submit" class="btn btn-bagiya-primary w-100 py-2 shadow-sm">
+          <i class="bi bi-plus-circle me-1"></i> बैंक रिकॉर्ड दर्ज करें
+        </button>
+      </form>
+    </div>
+
+    <!-- Auto Match Action Card -->
+    <div class="card card-bagiya p-4 border-0 shadow-sm bg-success bg-opacity-10 border-success">
+      <h6 class="fw-bold text-success mb-2">
+        <i class="bi bi-magic me-1"></i> एक-क्लिक स्वतः मिलान इंजन
+      </h6>
+      <p class="small text-muted mb-3">
+        सिस्टम सभी लंबित दानदाताओं के यूटीआर को बैंक स्टेटमेंट से मिलाएगा और सही मिलने पर लेजर में स्वतः जोड़ देगा।
+      </p>
+      <form method="post" action="{% url 'payments:dashboard_upi_auto_match' %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-success w-100 py-2 fw-bold shadow-sm">
+          <i class="bi bi-arrow-repeat me-1"></i> स्वतः मिलान निष्पादित करें
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Right Column: Pending Donations & Statement Records -->
+  <div class="col-lg-8">
+    <!-- Pending UPI Donations Awaiting Match -->
+    <div class="card card-bagiya p-4 border-0 shadow-sm mb-4">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="fw-bold text-bagiya-dark mb-0">दानदाताओं द्वारा प्रस्तुत UTR (सत्यापन प्रतीक्षित)</h5>
+        <span class="badge bg-warning text-dark">{{ pending_donations.count }} प्रतीक्षारत</span>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0 small">
+          <thead class="table-light">
+            <tr>
+              <th>दिनांक</th>
+              <th>दानदाता</th>
+              <th>राशि</th>
+              <th>प्रस्तुत UTR नंबर</th>
+              <th>कार्रवाई</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for d in pending_donations %}
+            <tr>
+              <td>{{ d.donation_date|date:"d M Y" }}</td>
+              <td>
+                <div class="fw-bold text-dark">{{ d.donor_name }}</div>
+                <div class="text-muted" style="font-size: 0.75rem;">{{ d.donation_id }}</div>
+              </td>
+              <td class="fw-bold text-success">{{ d.amount|inr }}</td>
+              <td>
+                <span class="badge bg-light text-dark font-monospace border px-2 py-1">
+                  {{ d.transaction_reference }}
+                </span>
+                {% if d.payment_proof %}
+                <a href="{{ d.payment_proof.url }}" target="_blank" class="ms-1 text-primary" title="रसीद स्क्रीनशॉट देखें">
+                  <i class="bi bi-paperclip"></i>
+                </a>
+                {% endif %}
+              </td>
+              <td>
+                <a href="{% url 'donations:dashboard_detail' d.donation_id %}" class="btn btn-outline-secondary btn-sm">
+                  समीक्षा
+                </a>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="5" class="text-center py-4 text-muted">
+                <i class="bi bi-check2-circle text-success fs-3 d-block mb-1"></i>
+                कोई लंबित UPI दान सत्यापन हेतु शेष नहीं है।
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Bank Statement UTR Records -->
+    <div class="card card-bagiya p-4 border-0 shadow-sm">
+      <h5 class="fw-bold text-bagiya-dark mb-3">बैंक स्टेटमेंट UTR रिकॉर्ड्स</h5>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0 small">
+          <thead class="table-light">
+            <tr>
+              <th>दिनांक</th>
+              <th>बैंक UTR</th>
+              <th class="text-end">क्रेडिट राशि</th>
+              <th>विवरण / Payer</th>
+              <th>स्थिति</th>
+              <th>कार्रवाई</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for r in reconciliation_records %}
+            <tr>
+              <td>{{ r.bank_statement_date|date:"d M Y" }}</td>
+              <td class="font-monospace fw-bold text-dark">{{ r.utr_number }}</td>
+              <td class="text-end fw-bold text-success">{{ r.amount|inr }}</td>
+              <td>{{ r.payer_details|default:"—" }}</td>
+              <td>
+                {% if r.is_matched %}
+                <span class="badge bg-success">
+                  <i class="bi bi-check-circle me-1"></i> मिलान पूर्ण
+                </span>
+                {% else %}
+                <span class="badge bg-secondary">अमिलान (Pending)</span>
+                {% endif %}
+              </td>
+              <td>
+                {% if not r.is_matched %}
+                <div class="d-flex gap-1">
+                  <!-- Manual Match Trigger Modal -->
+                  <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#matchModal{{ r.id }}" title="मैन्युअल मिलान">
+                    <i class="bi bi-link-45deg"></i>
+                  </button>
+                  <form method="post" action="{% url 'payments:dashboard_upi_delete_record' r.id %}" onsubmit="return confirm('क्या आप इस रिकॉर्ड को हटाना चाहते हैं?');">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-outline-danger btn-sm" title="हटाएं">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </form>
+                </div>
+
+                <!-- Match Modal -->
+                <div class="modal fade" id="matchModal{{ r.id }}" tabindex="-1">
+                  <div class="modal-dialog">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h6 class="modal-title fw-bold">मैन्युअल मिलान: UTR {{ r.utr_number }}</h6>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                      </div>
+                      <form method="post" action="{% url 'payments:dashboard_upi_manual_match' r.id %}">
+                        {% csrf_token %}
+                        <div class="modal-body">
+                          <p class="small text-muted mb-3">
+                            बैंक क्रेडिट राशि: <strong>₹{{ r.amount }}</strong> | दिनांक: {{ r.bank_statement_date }}
+                          </p>
+                          <label class="form-label small fw-bold">दान चुनें जिससे मिलान करना है:</label>
+                          <select name="donation_id" class="form-select form-select-sm" required>
+                            <option value="">-- संबंधित दान चुनें --</option>
+                            {% for d in pending_donations %}
+                            <option value="{{ d.donation_id }}">
+                              {{ d.donor_name }} — ₹{{ d.amount }} (UTR: {{ d.transaction_reference }})
+                            </option>
+                            {% endfor %}
+                          </select>
+                        </div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">रद्द करें</button>
+                          <button type="submit" class="btn btn-success btn-sm">मिलान पक्का करें</button>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+                {% else %}
+                <span class="small text-muted" title="{{ r.matched_donation.donation_id }}">
+                  {{ r.matched_donation.donor_name }}
+                </span>
+                {% endif %}
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="6" class="text-center py-4 text-muted">
+                कोई बैंक स्टेटमेंट UTR रिकॉर्ड दर्ज नहीं है।
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

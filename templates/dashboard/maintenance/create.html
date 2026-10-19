@@ -1,0 +1,71 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% load static %}
+
+{% block page_title %}नया रख-रखाव कार्य शेड्यूल करें{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <div class="card card-bagiya p-4 border-0 shadow">
+      <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
+        <div>
+          <h4 class="fw-bold text-bagiya-dark mb-0">नया रख-रखाव कार्य शेड्यूल करें</h4>
+          <small class="text-muted">सिंचाई, सफाई, पौधरोपण, चारदीवारी अथवा सोलर लाइट मरम्मत।</small>
+        </div>
+        <a href="{% url 'maintenance:dashboard_list' %}" class="btn btn-outline-secondary btn-sm">वापस</a>
+      </div>
+
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="row g-3">
+          <div class="col-12">
+            <label class="form-label small fw-bold">कार्य शीर्षक (Title) *</label>
+            {{ form.title }}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small fw-bold">स्थल / क्षेत्र (Facility) *</label>
+            {{ form.facility }}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small fw-bold">कार्य का प्रकार *</label>
+            {{ form.task_type }}
+          </div>
+          <div class="col-12">
+            <label class="form-label small fw-bold">संबंधित प्रोजेक्ट (वैकल्पिक)</label>
+            {{ form.project }}
+          </div>
+          <div class="col-12">
+            <label class="form-label small fw-bold">विस्तृत निर्देश / विवरण</label>
+            {{ form.description }}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small fw-bold">आवृत्ति (Frequency)</label>
+            {{ form.frequency }}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small fw-bold">शेड्यूल दिनांक *</label>
+            {{ form.scheduled_date }}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small fw-bold">प्राथमिकता *</label>
+            {{ form.priority }}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small fw-bold">जिम्मेदार स्वयंसेवक / प्रभारी</label>
+            {{ form.assigned_volunteer }}
+          </div>
+          <div class="col-12">
+            <label class="form-label small fw-bold">कार्य प्रारंभ से पूर्व की फोटो (Before Photo)</label>
+            {{ form.before_photo }}
+          </div>
+          <div class="col-12 mt-4">
+            <button type="submit" class="btn btn-bagiya-primary btn-lg w-100 py-3 shadow">
+              <i class="bi bi-calendar-check me-1"></i> कार्य शेड्यूल करें
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

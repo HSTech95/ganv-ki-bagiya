@@ -1,0 +1,245 @@
+[
+{
+  "model": "projects.project",
+  "pk": 1,
+  "fields": {
+    "name": "कब्रिस्तान की पक्की चारदीवारी व मुख्य द्वार",
+    "slug": "kabristan-boundary-gate",
+    "project_type": "KABRISTAN",
+    "description": "कब्रिस्तान की सुरक्षा और आवारा पशुओं की रोकथाम के लिए 7 फीट ऊंची पक्की ईंट की दीवार और बड़ा मजबूत लोहे का मुख्य द्वार निर्माण कार्य।",
+    "objectives": "• 450 फीट लंबी पक्की ईंट की चारदीवारी\n• 10 फीट चौड़ा लोहे का सुरक्षा गेट\n• मिट्टी भराव व समतलीकरण कार्य",
+    "estimated_budget": "150000.00",
+    "start_date": "2026-05-15",
+    "target_completion_date": "2026-12-01",
+    "status": "ACTIVE",
+    "progress_percentage": 65,
+    "featured_image": "",
+    "manager": 1,
+    "is_public": true,
+    "created_at": "2026-10-12T10:25:48.870Z",
+    "updated_at": "2026-10-12T10:25:48.870Z"
+  }
+},
+{
+  "model": "projects.project",
+  "pk": 2,
+  "fields": {
+    "name": "बगीचा सौंदर्यीकरण एवं सघन वृक्षारोपण",
+    "slug": "garden-beautification-plantation",
+    "project_type": "GARDEN",
+    "description": "बंजर पड़ी ज़मीन पर फलदार और छायादार पौधे रोपना, हरियाली घास लगाना और ग्रामीणों के टहलने व बैठने हेतु सुरक्षित व सुंदर वातावरण तैयार करना।",
+    "objectives": "• 500+ छायादार वृक्ष (नीम, पीपल, जामुन, शीशम)\n• पौधों की सुरक्षा के लिए ट्री-गार्ड लगाना\n• नियमित खाद, पानी और निराई-गुड़ाई की व्यवस्था",
+    "estimated_budget": "60000.00",
+    "start_date": "2026-06-01",
+    "target_completion_date": "2026-11-15",
+    "status": "ACTIVE",
+    "progress_percentage": 75,
+    "featured_image": "",
+    "manager": 1,
+    "is_public": true,
+    "created_at": "2026-10-12T10:25:48.919Z",
+    "updated_at": "2026-10-12T10:25:48.919Z"
+  }
+},
+{
+  "model": "projects.project",
+  "pk": 3,
+  "fields": {
+    "name": "सोलर सबमर्सिबल बोरिंग एवं पेयजल व्यवस्था",
+    "slug": "solar-submersible-water-supply",
+    "project_type": "INFRASTRUCTURE",
+    "description": "पौधों की सिंचाई और कब्रिस्तान में वुज़ू व हाथ धोने के लिए 250 फीट गहरा बोरिंग, 3 HP सोलर सबमर्सिबल पंप एवं 2000 लीटर पानी की टंकी की स्थापना।",
+    "objectives": "• 250 फीट गहरा सबमर्सिबल बोरिंग\n• 3 HP सोलर पंप और 2000L सिंटेक्स टंकी\n• पूरे परिसर में पानी की पाइपलाइन व टोंटियां",
+    "estimated_budget": "85000.00",
+    "start_date": "2026-04-10",
+    "target_completion_date": "2026-07-20",
+    "status": "COMPLETED",
+    "progress_percentage": 100,
+    "featured_image": "",
+    "manager": 1,
+    "is_public": true,
+    "created_at": "2026-10-12T10:25:48.939Z",
+    "updated_at": "2026-10-12T10:25:48.939Z"
+  }
+},
+{
+  "model": "projects.project",
+  "pk": 4,
+  "fields": {
+    "name": "जनाज़ा शेड व वुज़ूखाना निर्माण",
+    "slug": "janaza-shed-wudu-facility",
+    "project_type": "KABRISTAN",
+    "description": "बारिश और कड़ी धूप के मौसम में जनाज़े की नमाज़ और अकीदतमंदों के बैठने के लिए पक्का कंक्रीट शेड, फर्श टाइल्स और वुज़ू की मुकम्मल व्यवस्था।",
+    "objectives": "• 40x25 फीट पक्का शेड निर्माण\n• फर्श पर कोटा स्टोन/टाइल्स बिछाना\n• 8 नल वाला पक्का वुज़ू चबूतरा",
+    "estimated_budget": "95000.00",
+    "start_date": "2026-07-01",
+    "target_completion_date": "2026-12-31",
+    "status": "ACTIVE",
+    "progress_percentage": 50,
+    "featured_image": "",
+    "manager": 1,
+    "is_public": true,
+    "created_at": "2026-10-12T10:25:48.957Z",
+    "updated_at": "2026-10-12T10:25:48.957Z"
+  }
+},
+{
+  "model": "projects.project",
+  "pk": 5,
+  "fields": {
+    "name": "पैदल रास्ता (Walkway) एवं बैठने हेतु पक्की बेंच",
+    "slug": "garden-walkway-park-benches",
+    "project_type": "GARDEN",
+    "description": "बुजुर्गों और गाँव वालों के सुबह-शाम टहलने के लिए इंटरलॉकिंग टाइल्स का सुरक्षित वॉकवे और छायादार पेड़ों के नीचे 4 पक्की सीमेंटेड बेंच लगाना।",
+    "objectives": "• 50 मीटर लंबा इंटरलॉकिंग टाइल पाथवे\r\n• 4 सीमेंटेड बेंच की स्थापना\r\n• कूड़ेदान (Dustbins) लगाना",
+    "estimated_budget": "20000.00",
+    "start_date": "2026-09-01",
+    "target_completion_date": "2027-02-28",
+    "status": "PLANNING",
+    "progress_percentage": 0,
+    "featured_image": "",
+    "manager": 1,
+    "is_public": true,
+    "created_at": "2026-10-12T10:25:48.969Z",
+    "updated_at": "2026-10-13T05:13:31.002Z"
+  }
+},
+{
+  "model": "projects.project",
+  "pk": 6,
+  "fields": {
+    "name": "सोलर स्ट्रीट लाइट एवं रात्रि प्रकाश व्यवस्था",
+    "slug": "solar-street-lighting",
+    "project_type": "INFRASTRUCTURE",
+    "description": "रात के अंधेरे में सुरक्षा और रोशनी के लिए बगिया के रास्तों और कब्रिस्तान परिसर में 6 ऑटोमैटिक सोलर एलईडी लाइट्स व पोल्स लगाना।",
+    "objectives": "• 6 सोलर पावर्ड एलईडी लाइट्स\n• ऑटो ऑन-ऑफ सेंसर और लिथियम बैटरी\n• 15 फीट ऊंचे जीआई पोल्स की स्थापना",
+    "estimated_budget": "40000.00",
+    "start_date": "2026-08-10",
+    "target_completion_date": "2026-11-20",
+    "status": "ACTIVE",
+    "progress_percentage": 80,
+    "featured_image": "",
+    "manager": 1,
+    "is_public": true,
+    "created_at": "2026-10-12T10:25:48.981Z",
+    "updated_at": "2026-10-12T10:25:48.981Z"
+  }
+},
+{
+  "model": "projects.projectupdate",
+  "pk": 1,
+  "fields": {
+    "project": 1,
+    "title": "चारदीवारी की नींव व ईंट चिनाई का काम पूरा",
+    "content": "कब्रिस्तान के उत्तरी और पश्चिमी हिस्से में 7 फीट ऊंची दीवार की चिनाई पूरी हो चुकी है। अब प्लास्टर का काम शुरू है।",
+    "update_date": "2026-08-10",
+    "photo": "",
+    "posted_by": 1,
+    "created_at": "2026-10-12T10:25:48.906Z"
+  }
+},
+{
+  "model": "projects.projectupdate",
+  "pk": 2,
+  "fields": {
+    "project": 1,
+    "title": "लोहे के मुख्य गेट का फ्रेम स्थापित",
+    "content": "मुख्य प्रवेश द्वार पर मजबूत लोहे का गेट लगा दिया गया है ताकि कोई भी जानवर अंदर न जा सके।",
+    "update_date": "2026-09-25",
+    "photo": "",
+    "posted_by": 1,
+    "created_at": "2026-10-12T10:25:48.912Z"
+  }
+},
+{
+  "model": "projects.projectupdate",
+  "pk": 3,
+  "fields": {
+    "project": 2,
+    "title": "300 छायादार पौधों का सफल रोपण",
+    "content": "गाँव के युवाओं के सहयोग से नीम, पीपल और जामुन के 300 पौधे लगाए गए और ट्री-गार्ड बांधे गए।",
+    "update_date": "2026-07-20",
+    "photo": "",
+    "posted_by": 1,
+    "created_at": "2026-10-12T10:25:48.925Z"
+  }
+},
+{
+  "model": "projects.projectupdate",
+  "pk": 4,
+  "fields": {
+    "project": 2,
+    "title": "ड्रिप सिंचाई पाइपलाइन बिछाई गई",
+    "content": "पौधों को नियमित पानी देने के लिए मुख्य क्यारियों तक पानी की लाइन जोड़ दी गई है।",
+    "update_date": "2026-09-15",
+    "photo": "",
+    "posted_by": 1,
+    "created_at": "2026-10-12T10:25:48.934Z"
+  }
+},
+{
+  "model": "projects.projectupdate",
+  "pk": 5,
+  "fields": {
+    "project": 3,
+    "title": "बोरिंग व सोलर पंप चालू",
+    "content": "250 फीट गहरे बोरिंग का काम मुकम्मल हुआ और 3 HP सोलर पंप से मीठा पानी चालू कर दिया गया है।",
+    "update_date": "2026-06-05",
+    "photo": "",
+    "posted_by": 1,
+    "created_at": "2026-10-12T10:25:48.944Z"
+  }
+},
+{
+  "model": "projects.projectupdate",
+  "pk": 6,
+  "fields": {
+    "project": 3,
+    "title": "परियोजना सफलतापूर्वक संपन्न",
+    "content": "2000 लीटर की टंकी स्थापित हो गई है और सभी टोंटियों में भरपूर पानी आ रहा है। यह काम पूरा हुआ।",
+    "update_date": "2026-07-20",
+    "photo": "",
+    "posted_by": 1,
+    "created_at": "2026-10-12T10:25:48.952Z"
+  }
+},
+{
+  "model": "projects.projectupdate",
+  "pk": 7,
+  "fields": {
+    "project": 4,
+    "title": "पिलर्स और छत के ट्रस का कार्य पूर्ण",
+    "content": "शेड के लोहे के मजबूत खंभे और ट्रस लगा दिए गए हैं। टीन की छत डालने की तैयारी है।",
+    "update_date": "2026-09-30",
+    "photo": "",
+    "posted_by": 1,
+    "created_at": "2026-10-12T10:25:48.962Z"
+  }
+},
+{
+  "model": "projects.projectupdate",
+  "pk": 8,
+  "fields": {
+    "project": 5,
+    "title": "पाथवे का नाप-जोख व जमीन समतलीकरण",
+    "content": "रास्ते की सीमा तय कर ली गई है और रोड़ी-बालू डालने का काम शुरू हो गया है।",
+    "update_date": "2026-10-05",
+    "photo": "",
+    "posted_by": 1,
+    "created_at": "2026-10-12T10:25:48.976Z"
+  }
+},
+{
+  "model": "projects.projectupdate",
+  "pk": 9,
+  "fields": {
+    "project": 6,
+    "title": "5 सोलर लाइट पोल्स स्थापित व चालू",
+    "content": "कब्रिस्तान के मुख्य रास्तों और बगिया में 5 सोलर लाइटें लग चुकी हैं जो रात में स्वतः चालू हो जाती हैं।",
+    "update_date": "2026-09-20",
+    "photo": "",
+    "posted_by": 1,
+    "created_at": "2026-10-12T10:25:48.988Z"
+  }
+}
+]

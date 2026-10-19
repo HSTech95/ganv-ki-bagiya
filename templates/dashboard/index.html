@@ -1,0 +1,507 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% load static currency_tags %}
+
+{% block page_title %}प्रबंधन डैशबोर्ड (Executive Overview){% endblock %}
+
+{% block content %}
+<!-- Quick Action Bar -->
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+  <div>
+    <h3 class="fw-bold text-bagiya-dark mb-0">समिति नियंत्रण कक्ष (Control Panel)</h3>
+    <small class="text-muted">गाँव की बगिया एवं कब्रिस्तान संरक्षण कार्य का लाइव लेखा-जोखा।</small>
+  </div>
+  <div class="d-flex flex-wrap gap-2">
+    {% if user.can_manage_finances %}
+      <a href="{% url 'donations:dashboard_create' %}" class="btn btn-success btn-sm d-flex align-items-center gap-1">
+        <i class="bi bi-plus-circle"></i> नया दान दर्ज करें
+      </a>
+    {% endif %}
+    <a href="{% url 'expenses:dashboard_create' %}" class="btn btn-outline-danger btn-sm d-flex align-items-center gap-1">
+      <i class="bi bi-dash-circle"></i> खर्च दर्ज करें
+    </a>
+    <a href="{% url 'maintenance:dashboard_create' %}" class="btn btn-outline-primary btn-sm d-flex align-items-center gap-1">
+      <i class="bi bi-calendar-plus"></i> कार्य शेड्यूल करें
+    </a>
+    <a href="{% url 'reports:financial_statement_pdf' %}" class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1">
+      <i class="bi bi-printer"></i> ऑडिट PDF
+    </a>
+  </div>
+</div>
+
+{% if summary.discrepancy_alert %}
+<!-- Section 8: Financial Discrepancy Alert Banner -->
+<div class="alert alert-danger shadow-sm border-2 border-danger d-flex align-items-center gap-3 mb-4" role="alert">
+  <i class="bi bi-exclamation-octagon-fill fs-2 text-danger"></i>
+  <div>
+    <h6 class="fw-bold mb-1">वित्तीय विसंगति चेतावनी (Financial Discrepancy Alert)</h6>
+    <div class="small">{{ summary.discrepancy_alert }}</div>
+  </div>
+</div>
+{% endif %}
+
+<!-- 1. Executive Summary Metric Cards (9 KPI cards per section 5 prompt) -->
+<div class="row g-3 mb-4">
+  <div class="col-xl-3 col-md-6">
+    <div class="stat-card border-start border-4 border-success">
+      <div class="text-muted small fw-bold">कुल प्राप्त दान (Total Donations)</div>
+      <div class="stat-value text-success my-1">{{ summary.total_confirmed_donations|inr }}</div>
+      <div class="small text-muted"><i class="bi bi-people-fill text-success me-1"></i> {{ summary.donor_count }} सहयोगी दानदाता</div>
+    </div>
+  </div>
+
+  <div class="col-xl-3 col-md-6">
+    <div class="stat-card border-start border-4 border-danger">
+      <div class="text-muted small fw-bold">कुल भुगतान खर्च (Expenses Paid)</div>
+      <div class="stat-value text-danger my-1">{{ summary.total_expenses_paid|inr }}</div>
+      <div class="small text-muted"><i class="bi bi-check-all text-danger me-1"></i> प्रमाणित भुगतान वाउचर</div>
+    </div>
+  </div>
+
+  <div class="col-xl-3 col-md-6">
+    <div class="stat-card border-start border-4 border-primary">
+      <div class="text-muted small fw-bold">वर्तमान बही शेष (Book Balance)</div>
+      <div class="stat-value text-primary my-1">{{ summary.current_book_balance|inr }}</div>
+      <div class="small text-muted">Closing Balance = Income - Expenses</div>
+    </div>
+  </div>
+
+  <div class="col-xl-3 col-md-6">
+    <div class="stat-card border-start border-4 border-warning">
+      <div class="text-muted small fw-bold">नकद व बैंक फंड विभाजन</div>
+      <div class="d-flex justify-content-between mt-1 small">
+        <span>नकद पेटी (Cash):</span>
+        <strong class="text-dark">{{ summary.cash_balance|inr }}</strong>
+      </div>
+      <div class="d-flex justify-content-between small">
+        <span>बैंक खाते (Bank):</span>
+        <strong class="text-dark">{{ summary.bank_balance|inr }}</strong>
+      </div>
+    </div>
+  </div>
+
+  <!-- Secondary Metrics: Pending Approvals & Payments -->
+  <div class="col-md-3">
+    <div class="p-3 bg-white rounded-3 border d-flex justify-content-between align-items-center shadow-sm">
+      <div>
+        <small class="text-muted d-block">स्वीकृति प्रतीक्षित खर्च</small>
+        <span class="fs-5 fw-bold text-warning">{{ summary.pending_approvals_count }} बिल</span>
+        <small class="d-block text-muted">({{ summary.pending_approvals_amount|inr }})</small>
+      </div>
+      <i class="bi bi-hourglass-split fs-2 text-warning"></i>
+    </div>
+  </div>
+
+  <div class="col-md-3">
+    <div class="p-3 bg-white rounded-3 border d-flex justify-content-between align-items-center shadow-sm">
+      <div>
+        <small class="text-muted d-block">भुगतान प्रतीक्षित खर्च (Unpaid)</small>
+        <span class="fs-5 fw-bold text-danger">{{ summary.pending_payments_count }} खर्च</span>
+        <small class="d-block text-muted">({{ summary.pending_payments_amount|inr }})</small>
+      </div>
+      <i class="bi bi-credit-card-2-front fs-2 text-danger"></i>
+    </div>
+  </div>
+
+  <div class="col-md-3">
+    <div class="p-3 bg-white rounded-3 border d-flex justify-content-between align-items-center shadow-sm">
+      <div>
+        <small class="text-muted d-block">सत्यापन प्रतीक्षित दान (UPI/Bank)</small>
+        <span class="fs-5 fw-bold text-primary">{{ summary.pending_donations_count }} दान</span>
+        <small class="d-block text-muted">({{ summary.pending_donations_amount|inr }})</small>
+      </div>
+      <i class="bi bi-qr-code-scan fs-2 text-primary"></i>
+    </div>
+  </div>
+
+  <div class="col-md-3">
+    <div class="p-3 bg-white rounded-3 border d-flex justify-content-between align-items-center shadow-sm">
+      <div>
+        <small class="text-muted d-block">सक्रिय विकास प्रोजेक्ट्स</small>
+        <span class="fs-5 fw-bold text-success">{{ active_projects_count }} परियोजनाएं</span>
+        <small class="d-block text-muted">बगिया व कब्रिस्तान</small>
+      </div>
+      <i class="bi bi-hammer fs-2 text-success"></i>
+    </div>
+  </div>
+</div>
+
+<!-- 2. Charts Row: Monthly Income/Expense & Category Breakdown -->
+<div class="row g-4 mb-4">
+  <div class="col-lg-8">
+    <div class="card card-bagiya h-100 p-4 border-0 shadow-sm">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+          <h5 class="fw-bold text-bagiya-dark mb-0">माहवार आय बनाम व्यय (Monthly Flow)</h5>
+          <small class="text-muted">दान संग्रह और खर्च का तुलनात्मक रुझान</small>
+        </div>
+        <span class="badge bg-light text-dark border">गत 6 माह</span>
+      </div>
+      <div style="height: 280px;">
+        <canvas id="dashboardMonthlyChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-4">
+    <div class="card card-bagiya h-100 p-4 border-0 shadow-sm">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+          <h5 class="fw-bold text-bagiya-dark mb-0">खर्च की श्रेणियां</h5>
+          <small class="text-muted">मद-वार खर्च विभाजन</small>
+        </div>
+        <i class="bi bi-pie-chart-fill text-warning"></i>
+      </div>
+      <div style="height: 260px;" class="d-flex align-items-center justify-content-center">
+        <canvas id="dashboardCatChart"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Charts Row 2: Daily Collection & Project Spending (Section 5 prompt) -->
+<div class="row g-4 mb-4">
+  <div class="col-lg-6">
+    <div class="card card-bagiya h-100 p-4 border-0 shadow-sm">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+          <h5 class="fw-bold text-bagiya-dark mb-0">दैनिक दान संकलन (Daily Collection)</h5>
+          <small class="text-muted">गत 14 दिनों का दैनिक दान प्रवाह</small>
+        </div>
+        <i class="bi bi-graph-up text-success fs-5"></i>
+      </div>
+      <div style="height: 260px;">
+        <canvas id="dashboardDailyChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-6">
+    <div class="card card-bagiya h-100 p-4 border-0 shadow-sm">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+          <h5 class="fw-bold text-bagiya-dark mb-0">परियोजना-वार बजट व खर्च (Project Spending)</h5>
+          <small class="text-muted">स्वीकृत बजट बनाम वास्तविक व्यय</small>
+        </div>
+        <i class="bi bi-bar-chart-line-fill text-primary fs-5"></i>
+      </div>
+      <div style="height: 260px;">
+        <canvas id="dashboardProjectChart"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 3. Action Tables: Pending Approvals & Recent Activities -->
+<div class="row g-4 mb-4">
+  <!-- Pending Expense Approvals -->
+  <div class="col-lg-6">
+    <div class="card card-bagiya h-100 p-4 border-0 shadow-sm">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="fw-bold text-bagiya-dark mb-0">
+          <i class="bi bi-exclamation-triangle-fill text-warning me-2"></i>स्वीकृति हेतु लंबित खर्च
+        </h5>
+        <a href="{% url 'expenses:dashboard_list' %}?approval=SUBMITTED" class="btn btn-outline-warning btn-sm">
+          सब देखें ({{ summary.pending_approvals_count }})
+        </a>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table table-sm table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>खर्च विवरण</th>
+              <th>प्रस्तुतकर्ता</th>
+              <th>राशि</th>
+              <th class="text-end">कार्रवाई</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for exp in pending_approvals %}
+            <tr>
+              <td>
+                <div class="fw-bold small">{{ exp.description }}</div>
+                <small class="text-muted">{{ exp.get_category_display }}</small>
+              </td>
+              <td class="small">{{ exp.created_by.username }}</td>
+              <td class="fw-bold text-danger font-monospace">{{ exp.amount|inr }}</td>
+              <td class="text-end">
+                <a href="{% url 'expenses:dashboard_detail' exp.expense_id %}" class="btn btn-outline-dark btn-sm" style="font-size: 0.75rem;">
+                  समीक्षा करें
+                </a>
+              </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="4" class="text-center py-3 text-muted small">कोई खर्च स्वीकृति हेतु लंबित नहीं है।</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Upcoming Maintenance Tasks -->
+  <div class="col-lg-6">
+    <div class="card card-bagiya h-100 p-4 border-0 shadow-sm">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="fw-bold text-bagiya-dark mb-0">
+          <i class="bi bi-tools text-primary me-2"></i>आगामी रख-रखाव कार्य
+        </h5>
+        <a href="{% url 'maintenance:dashboard_list' %}" class="btn btn-outline-primary btn-sm">
+          कार्य सूची
+        </a>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table table-sm table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>कार्य</th>
+              <th>स्थान</th>
+              <th>तारीख</th>
+              <th>स्थिति</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for t in upcoming_tasks %}
+            <tr>
+              <td class="fw-bold small">{{ t.title }}</td>
+              <td><span class="badge bg-light text-dark border">{{ t.get_facility_display }}</span></td>
+              <td class="small text-muted">{{ t.scheduled_date|date:"d M" }}</td>
+              <td>
+                <span class="badge bg-{% if t.status == 'COMPLETED' %}success{% else %}warning text-dark{% endif %}">
+                  {{ t.get_status_display }}
+                </span>
+              </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="4" class="text-center py-3 text-muted small">कोई आगामी कार्य लंबित नहीं है।</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 4. Recent Transactions Overview -->
+<div class="row g-4">
+  <!-- Recent Donations -->
+  <div class="col-lg-6">
+    <div class="card card-bagiya p-4 border-0 shadow-sm">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="fw-bold text-bagiya-dark mb-0">
+          <i class="bi bi-cash-coin text-success me-2"></i>हालिया प्राप्त दान
+        </h5>
+        <a href="{% url 'donations:dashboard_list' %}" class="btn btn-outline-success btn-sm">दान रजिस्टर</a>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-sm align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>दानदाता</th>
+              <th>माध्यम</th>
+              <th>स्थिति</th>
+              <th class="text-end">राशि</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for d in latest_donations %}
+            <tr>
+              <td>
+                <div class="fw-bold small">{{ d.donor_name }}</div>
+                <small class="text-muted font-monospace" style="font-size: 0.7rem;">{{ d.donation_id }}</small>
+              </td>
+              <td class="small">{{ d.get_payment_method_display }}</td>
+              <td>
+                <span class="badge bg-{% if d.payment_status == 'CONFIRMED' %}success{% else %}warning text-dark{% endif %}">
+                  {{ d.get_payment_status_display }}
+                </span>
+              </td>
+              <td class="text-end fw-bold text-success font-monospace">{{ d.amount|inr }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="4" class="text-center py-3 text-muted small">कोई दान रिकॉर्ड नहीं।</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Expenses -->
+  <div class="col-lg-6">
+    <div class="card card-bagiya p-4 border-0 shadow-sm">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="fw-bold text-bagiya-dark mb-0">
+          <i class="bi bi-receipt text-danger me-2"></i>हालिया खर्च रिकॉर्ड
+        </h5>
+        <a href="{% url 'expenses:dashboard_list' %}" class="btn btn-outline-danger btn-sm">खर्च रजिस्टर</a>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-sm align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>खर्च विवरण</th>
+              <th>दुकानदार</th>
+              <th>भुगतान</th>
+              <th class="text-end">राशि</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for e in latest_expenses %}
+            <tr>
+              <td>
+                <div class="fw-bold small">{{ e.description }}</div>
+                <small class="text-muted">{{ e.get_category_display }}</small>
+              </td>
+              <td class="small">{{ e.vendor_name }}</td>
+              <td>
+                <span class="badge bg-{% if e.payment_status == 'PAID' %}success{% else %}secondary{% endif %}">
+                  {{ e.get_payment_status_display }}
+                </span>
+              </td>
+              <td class="text-end fw-bold text-danger font-monospace">{{ e.amount|inr }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="4" class="text-center py-3 text-muted small">कोई खर्च रिकॉर्ड नहीं।</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  // Chart 1: Dashboard Monthly Chart
+  const mCtx = document.getElementById("dashboardMonthlyChart");
+  if (mCtx) {
+    new Chart(mCtx, {
+      type: "bar",
+      data: {
+        labels: {{ charts.monthly_labels|safe }},
+        datasets: [
+          {
+            label: "दान संग्रह (+)",
+            data: {{ charts.monthly_income|safe }},
+            backgroundColor: "#198754",
+            borderRadius: 4
+          },
+          {
+            label: "खर्च भुगतान (-)",
+            data: {{ charts.monthly_expense|safe }},
+            backgroundColor: "#dc3545",
+            borderRadius: 4
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { position: "top" } },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: { callback: function(val) { return "₹" + val.toLocaleString("en-IN"); } }
+          }
+        }
+      }
+    });
+  }
+
+  // Chart 2: Dashboard Category Doughnut
+  const cCtx = document.getElementById("dashboardCatChart");
+  if (cCtx) {
+    const catData = {{ charts.category_data|safe }};
+    if (catData.length > 0) {
+      new Chart(cCtx, {
+        type: "doughnut",
+        data: {
+          labels: {{ charts.category_labels|safe }},
+          datasets: [{
+            data: catData,
+            backgroundColor: ["#198754", "#20c997", "#0d6efd", "#ffc107", "#fd7e14", "#6f42c1", "#d63384", "#6c757d", "#795548"]
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { position: "bottom", labels: { boxWidth: 10, font: { size: 9 } } } }
+        }
+      });
+    }
+  }
+
+  // Chart 3: Daily Donation Collection (Line)
+  const dCtx = document.getElementById("dashboardDailyChart");
+  if (dCtx) {
+    new Chart(dCtx, {
+      type: "line",
+      data: {
+        labels: {{ charts.daily_labels|safe }},
+        datasets: [{
+          label: "दैनिक दान संकलन (₹)",
+          data: {{ charts.daily_donations|safe }},
+          borderColor: "#198754",
+          backgroundColor: "rgba(25, 135, 84, 0.1)",
+          fill: true,
+          tension: 0.3,
+          pointRadius: 4,
+          pointBackgroundColor: "#198754"
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: { callback: function(val) { return "₹" + val.toLocaleString("en-IN"); } }
+          }
+        }
+      }
+    });
+  }
+
+  // Chart 4: Project Budget vs Actual Spent (Grouped Bar)
+  const pCtx = document.getElementById("dashboardProjectChart");
+  if (pCtx) {
+    new Chart(pCtx, {
+      type: "bar",
+      data: {
+        labels: {{ charts.proj_labels|safe }},
+        datasets: [
+          {
+            label: "स्वीकृत बजट (Budget)",
+            data: {{ charts.proj_budgets|safe }},
+            backgroundColor: "#0d6efd",
+            borderRadius: 4
+          },
+          {
+            label: "वास्तविक व्यय (Spent)",
+            data: {{ charts.proj_spent|safe }},
+            backgroundColor: "#d97706",
+            borderRadius: 4
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { position: "top" } },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: { callback: function(val) { return "₹" + val.toLocaleString("en-IN"); } }
+          }
+        }
+      }
+    });
+  }
+});
+</script>
+{% endblock %}

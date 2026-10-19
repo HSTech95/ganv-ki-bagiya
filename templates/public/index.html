@@ -1,0 +1,596 @@
+{% extends 'base.html' %}
+{% load static currency_tags %}
+
+{% block title %}गाँव की बगिया — हरियाली और साफ़-सफ़ाई की साझी मुहिम | Ganv Ki Bagiya{% endblock %}
+
+{% block content %}
+<!-- 1. Hero Section -->
+<section class="hero-banner">
+  <div class="container position-relative" style="z-index: 1;">
+    <div class="row align-items-center g-5">
+      <div class="col-lg-7">
+        <div class="hero-stats-badge mb-3">
+          <i class="bi bi-shield-check text-warning"></i>
+          <span>100% हर पैसे का पूरा हिसाब, सबके सामने साफ़-साफ़।</span>
+        </div>
+        <h1 class="display-4 fw-extrabold text-white mb-3" style="line-height: 1.2;">
+          {{ site_settings.hero_title|default:"बंजर ज़मीन को हरा-भरा बनाने और कब्रिस्तान की साफ़-सफ़ाई व हिफ़ाज़त का काम" }}
+        </h1>
+        <p class="lead text-white-50 mb-4 fs-5" style="max-width: 620px;">
+          {{ site_settings.hero_subtitle|default:"गाँव वालों और मददगारों के सहयोग से बंजर ज़मीन को हरी-भरी बगिया बनाना और कब्रिस्तान की पक्की चारदीवारी, पानी व सफ़ाई की पूरी व्यवस्था करना।" }}
+        </p>
+
+        <div class="d-flex flex-wrap gap-3">
+          <a href="{% url 'donations:donate' %}" class="btn btn-warning btn-lg fw-bold px-4 py-3 shadow-lg d-inline-flex align-items-center gap-2">
+            <i class="bi bi-heart-fill text-danger"></i>
+            <span>ऑनलाइन दान करें (Donate Now)</span>
+          </a>
+          <a href="{% url 'finance:transparency' %}" class="btn btn-outline-light btn-lg px-4 py-3 d-inline-flex align-items-center gap-2">
+            <i class="bi bi-journal-text"></i>
+            <span>पैसों का पूरा हिसाब-किताब देखें</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Quick Trust Summary Card -->
+      <div class="col-lg-5">
+        <div class="card border-0 shadow-lg p-4 rounded-4" style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px);">
+          <div class="d-flex align-items-center justify-content-between border-bottom pb-3 mb-3">
+            <div>
+              <span class="badge bg-success-subtle text-success mb-1">लाइव हिसाब-किताब</span>
+              <h5 class="fw-bold text-bagiya-dark mb-0">फंड और पैसों का हिसाब</h5>
+            </div>
+            <i class="bi bi-graph-up-arrow fs-2 text-success"></i>
+          </div>
+
+          <div class="row g-3 text-center mb-3">
+            <div class="col-6">
+              <div class="p-3 bg-light rounded-3 border">
+                <small class="text-muted d-block mb-1">कुल आया दान</small>
+                <div class="fs-4 fw-bold text-success">{{ stats.total_confirmed_donations|inr }}</div>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="p-3 bg-light rounded-3 border">
+                <small class="text-muted d-block mb-1">कुल हुआ खर्चा</small>
+                <div class="fs-4 fw-bold text-danger">{{ stats.total_expenses_paid|inr }}</div>
+              </div>
+            </div>
+            <div class="col-12">
+              <div class="p-3 bg-success-subtle rounded-3 border border-success">
+                <small class="text-success fw-bold d-block mb-1">मौजूदा बचा हुआ बैलेंस</small>
+                <div class="display-6 fw-extrabold text-success">{{ stats.current_book_balance|inr }}</div>
+                <div class="small text-muted mt-1">
+                  (नकद: {{ stats.cash_balance|inr }} &bull; बैंक: {{ stats.bank_balance|inr }})
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="d-flex align-items-center justify-content-between small text-muted pt-2 border-top">
+            <span><i class="bi bi-people-fill text-success me-1"></i> कुल दानदाता: <strong>{{ stats.donor_count }} लोग</strong></span>
+            <a href="{% url 'finance:transparency' %}" class="text-success fw-bold text-decoration-none">पूरा हिसाब देखें &rarr;</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 2. Announcements Ticker (if any) -->
+{% if announcements %}
+<section class="py-2 bg-success text-white">
+  <div class="container d-flex align-items-center gap-3 overflow-hidden">
+    <span class="badge bg-warning text-dark px-2 py-1 flex-shrink-0 fw-bold">
+      <i class="bi bi-megaphone-fill me-1"></i> ज़रूरी सूचना
+    </span>
+    <marquee class="small mb-0" scrollamount="6">
+      {% for a in announcements %}
+        <span class="me-5"><strong>{{ a.title }}:</strong> {{ a.content }}</span>
+      {% endfor %}
+    </marquee>
+  </div>
+</section>
+{% endif %}
+
+<!-- 3. Key Financial Highlights (Never Hardcoded) -->
+<section class="py-5">
+  <div class="container">
+    <div class="row g-4">
+      <div class="col-lg-3 col-md-6">
+        <div class="stat-card d-flex align-items-center gap-3">
+          <div class="stat-icon-wrapper bg-success-subtle text-success">
+            <i class="bi bi-wallet2"></i>
+          </div>
+          <div>
+            <div class="text-muted small">कुल आया दान</div>
+            <div class="stat-value text-success">{{ stats.total_confirmed_donations|inr }}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-3 col-md-6">
+        <div class="stat-card d-flex align-items-center gap-3">
+          <div class="stat-icon-wrapper bg-danger-subtle text-danger">
+            <i class="bi bi-receipt"></i>
+          </div>
+          <div>
+            <div class="text-muted small">कुल हुआ खर्चा</div>
+            <div class="stat-value text-danger">{{ stats.total_expenses_paid|inr }}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-3 col-md-6">
+        <div class="stat-card d-flex align-items-center gap-3">
+          <div class="stat-icon-wrapper bg-primary-subtle text-primary">
+            <i class="bi bi-cash-stack"></i>
+          </div>
+          <div>
+            <div class="text-muted small">बैंक और नकद में बचा बैलेंस</div>
+            <div class="stat-value text-primary">{{ stats.current_book_balance|inr }}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-3 col-md-6">
+        <div class="stat-card d-flex align-items-center gap-3">
+          <div class="stat-icon-wrapper bg-warning-subtle text-warning">
+            <i class="bi bi-heart-pulse"></i>
+          </div>
+          <div>
+            <div class="text-muted small">कुल दान देने वाले</div>
+            <div class="stat-value text-dark">{{ stats.donor_count }} लोग</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 3.5. Public Donations Dashboard & Live Transparency Feed -->
+<section class="py-5 bg-white border-top border-bottom" id="donations-feed">
+  <div class="container">
+    <div class="d-flex flex-wrap justify-content-between align-items-end mb-4">
+      <div>
+        <div class="d-flex align-items-center gap-2 mb-2">
+          <span class="badge bg-success text-white px-3 py-2 rounded-pill fw-bold">
+            <i class="bi bi-shield-check me-1"></i> 100% साफ़ और खुला हिसाब
+          </span>
+          <span class="badge bg-warning-subtle text-dark border px-2 py-1 small">
+            <i class="bi bi-broadcast me-1 text-danger"></i> लाइव रिकॉर्ड
+          </span>
+        </div>
+        <h2 class="fw-bold mb-1 text-bagiya-dark">आए हुए दान का विवरण (Donations Dashboard)</h2>
+        <p class="text-muted mb-0">
+          गाँव की बगिया और कब्रिस्तान के काम में आया दान। हर दानदाता का शुक्रिया और हर पैसे का पूरा हिसाब।
+        </p>
+      </div>
+      <div class="d-flex flex-wrap gap-2 mt-3 mt-md-0">
+        <a href="{% url 'donations:donate' %}" class="btn btn-warning fw-bold px-3 py-2 shadow-sm d-inline-flex align-items-center gap-2">
+          <i class="bi bi-heart-fill text-danger"></i>
+          <span>ऑनलाइन दान करें (Donate Now)</span>
+        </a>
+        <a href="{% url 'donations:public_list' %}" class="btn btn-outline-success fw-bold px-3 py-2 d-inline-flex align-items-center gap-1">
+          <i class="bi bi-list-stars"></i>
+          <span>पूरी दान सूची</span>
+        </a>
+      </div>
+    </div>
+
+    <div class="row g-4">
+      <!-- Left Column: Recent Public Donations Table -->
+      <div class="col-lg-8">
+        <div class="card card-bagiya h-100 p-4 border-0 shadow">
+          <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 pb-2 border-bottom">
+            <div class="d-flex align-items-center gap-2">
+              <div class="rounded-circle bg-success-subtle text-success p-2 d-flex align-items-center justify-content-center" style="width: 38px; height: 38px;">
+                <i class="bi bi-cash-stack fs-5"></i>
+              </div>
+              <div>
+                <h5 class="fw-bold text-bagiya-dark mb-0">हाल में आए दान (Recent Donations)</h5>
+                <small class="text-muted">जांचे हुए और पक्के दान रिकॉर्ड</small>
+              </div>
+            </div>
+            <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2">
+              <i class="bi bi-people-fill me-1"></i> कुल दानदाता: <strong>{{ stats.donor_count }} लोग</strong>
+            </span>
+          </div>
+
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead class="table-light small">
+                <tr>
+                  <th scope="col" style="min-width: 170px;">दानदाता (नाम)</th>
+                  <th scope="col" style="min-width: 140px;">दान का काम / प्रोजेक्ट</th>
+                  <th scope="col">तारीख</th>
+                  <th scope="col" class="text-end">रकम (Amount)</th>
+                  <th scope="col" class="text-center">स्थिति</th>
+                  <th scope="col" class="text-center">रसीद</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for d in recent_donations %}
+                <tr>
+                  <td>
+                    <div class="d-flex align-items-center gap-2">
+                      <div class="rounded-circle bg-light border d-flex align-items-center justify-content-center text-success fw-bold" style="width: 34px; height: 34px; font-size: 0.85rem; flex-shrink: 0;">
+                        {% if d.is_anonymous %}
+                          <i class="bi bi-person-fill-lock text-muted"></i>
+                        {% else %}
+                          <i class="bi bi-person-check-fill"></i>
+                        {% endif %}
+                      </div>
+                      <div>
+                        <div class="fw-bold text-bagiya-dark small lh-sm">{{ d.public_donor_name }}</div>
+                        <small class="text-muted font-monospace d-block" style="font-size: 0.72rem;">{{ d.masked_phone }}</small>
+                      </div>
+                    </div>
+                    {% if d.message %}
+                    <div class="mt-1 small text-muted fst-italic text-truncate" style="max-width: 200px;" title="{{ d.message }}">
+                      <i class="bi bi-chat-quote-fill text-success opacity-75 me-1"></i>"{{ d.message }}"
+                    </div>
+                    {% endif %}
+                  </td>
+                  <td>
+                    <span class="badge bg-light text-dark border small fw-normal">{{ d.get_purpose_display|truncatewords:3 }}</span>
+                    {% if d.related_project %}
+                    <small class="d-block text-success mt-1">
+                      <i class="bi bi-arrow-return-right me-1"></i>{{ d.related_project.name|truncatewords:2 }}
+                    </small>
+                    {% endif %}
+                  </td>
+                  <td class="small text-muted text-nowrap">
+                    {{ d.donation_date|date:"d M Y" }}
+                  </td>
+                  <td class="text-end font-monospace fw-bold text-success fs-6 text-nowrap">
+                    {{ d.amount|inr }}
+                  </td>
+                  <td class="text-center text-nowrap">
+                    {% if d.payment_status == 'CONFIRMED' %}
+                      <span class="badge bg-success-subtle text-success border border-success-subtle">
+                        <i class="bi bi-check-circle-fill me-1"></i>सत्यापित
+                      </span>
+                    {% else %}
+                      <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle">
+                        <i class="bi bi-hourglass-split me-1"></i>जांच जारी
+                      </span>
+                    {% endif %}
+                  </td>
+                  <td class="text-center text-nowrap">
+                    <a href="{% url 'donations:public_receipt' d.receipt_number %}" class="btn btn-outline-success btn-sm py-1 px-2" title="रसीद देखें">
+                      <i class="bi bi-receipt"></i>
+                    </a>
+                  </td>
+                </tr>
+                {% empty %}
+                <tr>
+                  <td colspan="6" class="text-center py-5 text-muted">
+                    <i class="bi bi-heart fs-1 text-danger d-block mb-2 opacity-50"></i>
+                    <p class="mb-2">अभी तक कोई दान रिकॉर्ड नहीं है।</p>
+                    <a href="{% url 'donations:donate' %}" class="btn btn-success btn-sm">
+                      पहला दान आप करें
+                    </a>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+
+          <div class="d-flex flex-wrap justify-content-between align-items-center pt-3 mt-3 border-top small text-muted">
+            <span>
+              <i class="bi bi-info-circle text-success me-1"></i>
+              दान देने वालों की प्राइवेसी के लिए फ़ोन नंबर के बीच के अंक छुपाए गए हैं।
+            </span>
+            <a href="{% url 'donations:public_list' %}" class="text-success fw-bold text-decoration-none">
+              सभी दान की लिस्ट देखें &rarr;
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Quick Donation Box & Trust Pillars -->
+      <div class="col-lg-4">
+        <div class="card card-bagiya h-100 p-4 border-0 shadow" style="background: linear-gradient(180deg, #f8fdf9 0%, #ffffff 100%);">
+          <div class="d-flex align-items-center gap-2 mb-3">
+            <div class="rounded-circle bg-danger-subtle text-danger p-2 d-flex align-items-center justify-content-center" style="width: 38px; height: 38px;">
+              <i class="bi bi-heart-fill fs-5"></i>
+            </div>
+            <div>
+              <h5 class="fw-bold text-bagiya-dark mb-0">आप भी नेक काम में साथ दें</h5>
+              <small class="text-muted">गाँव की बगिया और कब्रिस्तान की देखरेख</small>
+            </div>
+          </div>
+
+          <p class="text-muted small mb-3">
+            आपका दिया हर एक रुपया गाँव की हरियाली, पानी की व्यवस्था और कब्रिस्तान की चारदीवारी के काम में लगता है।
+          </p>
+
+          <!-- Quick Preset Amount Buttons -->
+          <label class="form-label small fw-bold text-bagiya-dark mb-2">रकम चुनें (Select Amount):</label>
+          <div class="row g-2 mb-3">
+            <div class="col-4">
+              <a href="{% url 'donations:donate' %}?amount=250" class="btn btn-outline-success btn-sm w-100 fw-bold py-2">₹250</a>
+            </div>
+            <div class="col-4">
+              <a href="{% url 'donations:donate' %}?amount=500" class="btn btn-outline-success btn-sm w-100 fw-bold py-2">₹500</a>
+            </div>
+            <div class="col-4">
+              <a href="{% url 'donations:donate' %}?amount=1100" class="btn btn-outline-success btn-sm w-100 fw-bold py-2">₹1,100</a>
+            </div>
+            <div class="col-4">
+              <a href="{% url 'donations:donate' %}?amount=2100" class="btn btn-outline-success btn-sm w-100 fw-bold py-2">₹2,100</a>
+            </div>
+            <div class="col-4">
+              <a href="{% url 'donations:donate' %}?amount=5000" class="btn btn-outline-success btn-sm w-100 fw-bold py-2">₹5,000</a>
+            </div>
+            <div class="col-4">
+              <a href="{% url 'donations:donate' %}" class="btn btn-outline-primary btn-sm w-100 fw-bold py-2">अन्य रकम</a>
+            </div>
+          </div>
+
+          <a href="{% url 'donations:donate' %}" class="btn btn-success btn-lg w-100 py-3 fw-bold shadow-sm d-flex align-items-center justify-content-center gap-2 mb-3">
+            <i class="bi bi-qr-code-scan"></i>
+            <span>यूपीआई / ऑनलाइन दान करें</span>
+          </a>
+
+          <!-- Trust Badges -->
+          <div class="bg-light p-3 rounded-3 border mb-3">
+            <div class="d-flex align-items-start gap-2 mb-2">
+              <i class="bi bi-check-circle-fill text-success mt-1"></i>
+              <span class="small">दान करते ही तुरंत <strong>पक्की रसीद</strong> मिलेगी।</span>
+            </div>
+            <div class="d-flex align-items-start gap-2 mb-2">
+              <i class="bi bi-check-circle-fill text-success mt-1"></i>
+              <span class="small">100% साफ़ हिसाब — वेबसाइट पर तुरंत दिखेगा।</span>
+            </div>
+            <div class="d-flex align-items-start gap-2">
+              <i class="bi bi-check-circle-fill text-success mt-1"></i>
+              <span class="small">आप चाहें तो अपना नाम <strong>गुप्त (Anonymous)</strong> भी रख सकते हैं।</span>
+            </div>
+          </div>
+
+          <div class="mt-auto text-center pt-2 border-top">
+            <div class="small text-muted">
+              <i class="bi bi-shield-lock-fill text-success me-1"></i>
+              खजांची और कमेटी द्वारा सत्यापित
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 4. Active Projects: Garden & Kabristan -->
+<section class="py-5 bg-white border-top border-bottom">
+  <div class="container">
+    <div class="d-flex flex-wrap justify-content-between align-items-end mb-4">
+      <div>
+        <span class="badge bg-success-subtle text-success px-3 py-2 rounded-pill fw-bold mb-2">हमारे मुख्य काम</span>
+        <h2 class="fw-bold mb-0">बगिया और कब्रिस्तान के काम (Projects)</h2>
+      </div>
+      <a href="{% url 'projects:public_list' %}" class="btn btn-bagiya-outline mt-3 mt-md-0">
+        सभी प्रोजेक्ट्स देखें <i class="bi bi-arrow-right ms-1"></i>
+      </a>
+    </div>
+
+    <div class="row g-4">
+      {% for proj in active_projects %}
+      <div class="col-lg-6">
+        <div class="card card-bagiya h-100">
+          <div class="row g-0 h-100">
+            <div class="col-md-5 position-relative">
+              {% if proj.featured_image %}
+                <img src="{{ proj.featured_image.url }}" class="img-fluid h-100 w-100 object-fit-cover rounded-start" alt="{{ proj.name }}">
+              {% else %}
+                <div class="bg-success-subtle h-100 d-flex align-items-center justify-content-center p-4 rounded-start text-success">
+                  <i class="bi bi-tree fs-1"></i>
+                </div>
+              {% endif %}
+              <span class="badge bg-dark bg-opacity-75 position-absolute top-0 start-0 m-2">
+                {{ proj.get_project_type_display }}
+              </span>
+            </div>
+            <div class="col-md-7 d-flex flex-column p-4">
+              <h5 class="fw-bold mb-2">{{ proj.name }}</h5>
+              <p class="text-muted small mb-3 flex-grow-1">{{ proj.description|truncatewords:22 }}</p>
+
+              <!-- Progress bar -->
+              <div class="mb-3">
+                <div class="d-flex justify-content-between small text-muted mb-1">
+                  <span>काम की प्रगति (Progress):</span>
+                  <span class="fw-bold text-success">{{ proj.progress_percentage }}%</span>
+                </div>
+                <div class="progress progress-bagiya">
+                  <div class="progress-bar progress-bar-bagiya" role="progressbar" style="width: {{ proj.progress_percentage }}%;" aria-valuenow="{{ proj.progress_percentage }}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+              </div>
+
+              <!-- Budget Stats -->
+              <div class="d-flex justify-content-between small text-muted border-top pt-2 mb-3">
+                <div>बजट: <strong class="text-dark">{{ proj.estimated_budget|inr }}</strong></div>
+                <div>खर्च: <strong class="text-danger">{{ proj.actual_expenditure|inr }}</strong></div>
+              </div>
+
+              <div class="d-flex gap-2">
+                <a href="{% url 'projects:public_detail' proj.slug %}" class="btn btn-outline-success btn-sm flex-grow-1">
+                  पूरी जानकारी देखें
+                </a>
+                <a href="{% url 'donations:donate' %}?project={{ proj.id }}" class="btn btn-success btn-sm flex-grow-1">
+                  इस काम के लिए दान दें
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% empty %}
+      <div class="col-12 text-center py-4 text-muted">
+        <i class="bi bi-inbox fs-2 d-block mb-2"></i>
+        अभी कोई प्रोजेक्ट चालू नहीं है।
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- 5. Before and After Comparisons -->
+{% if before_after_items %}
+<section class="py-5">
+  <div class="container">
+    <div class="text-center mb-5">
+      <span class="badge bg-warning-subtle text-dark px-3 py-2 rounded-pill fw-bold mb-2">ज़मीन पर आया बदलाव</span>
+      <h2 class="fw-bold">पहले और अब की फ़ोटो (बदलाव)</h2>
+      <p class="text-muted">आपके दिए एक-एक रुपये से गाँव की बंजर ज़मीन में कितना बदलाव आया, खुद देखिए।</p>
+    </div>
+
+    <div class="row g-4">
+      {% for item in before_after_items %}
+      <div class="col-lg-6">
+        <div class="card card-bagiya h-100 p-3">
+          <h5 class="fw-bold text-bagiya-dark mb-3">{{ item.title|default:item.album.title }}</h5>
+          <div class="row g-2">
+            <div class="col-6">
+              <div class="position-relative">
+                {% if item.before_image %}
+                  <img src="{{ item.before_image.url }}" class="img-fluid rounded-3 w-100 shadow-sm" style="height: 200px; object-fit: cover;" alt="Before">
+                {% else %}
+                  <div class="bg-secondary-subtle rounded-3 text-center py-5">पहले की फोटो</div>
+                {% endif %}
+                <span class="badge bg-danger position-absolute top-0 start-0 m-2">पहले (Before)</span>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="position-relative">
+                {% if item.after_image %}
+                  <img src="{{ item.after_image.url }}" class="img-fluid rounded-3 w-100 shadow-sm" style="height: 200px; object-fit: cover;" alt="After">
+                {% else %}
+                  <div class="bg-success-subtle rounded-3 text-center py-5">अब की फोटो</div>
+                {% endif %}
+                <span class="badge bg-success position-absolute top-0 start-0 m-2">अब (After)</span>
+              </div>
+            </div>
+          </div>
+          {% if item.caption %}
+          <p class="small text-muted mt-3 mb-0">{{ item.caption }}</p>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- 6. Gallery Preview -->
+{% if gallery_preview %}
+<section class="py-5 bg-white border-top">
+  <div class="container">
+    <div class="d-flex justify-content-between align-items-end mb-4">
+      <div>
+        <span class="badge bg-success-subtle text-success px-3 py-2 rounded-pill fw-bold mb-2">काम की फ़ोटो</span>
+        <h2 class="fw-bold mb-0">फ़ोटो और वीडियो गैलरी</h2>
+      </div>
+      <a href="{% url 'gallery:public_list' %}" class="btn btn-bagiya-outline">
+        पूरी गैलरी देखें <i class="bi bi-images ms-1"></i>
+      </a>
+    </div>
+
+    <div class="row g-3">
+      {% for img in gallery_preview %}
+      <div class="col-md-4 col-sm-6">
+        <div class="card card-bagiya h-100 border-0 shadow-sm overflow-hidden">
+          {% if img.image %}
+            <img src="{{ img.image.url }}" class="card-img-top w-100 object-fit-cover" style="height: 220px;" alt="{{ img.title }}">
+          {% else %}
+            <div class="bg-light d-flex align-items-center justify-content-center" style="height: 220px;">
+              <i class="bi bi-image fs-1 text-muted"></i>
+            </div>
+          {% endif %}
+          <div class="p-3">
+            <div class="fw-bold small text-truncate">{{ img.title|default:img.album.title }}</div>
+            <small class="text-muted">{{ img.album.get_category_display }}</small>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- 7. Volunteer & Shramdaan Section -->
+<section class="py-5 bg-bagiya-light">
+  <div class="container">
+    <div class="row align-items-center g-5">
+      <div class="col-lg-6">
+        <span class="badge bg-success text-white px-3 py-2 rounded-pill fw-bold mb-2">श्रमदान करें, साथ दें</span>
+        <h2 class="fw-bold text-bagiya-dark mb-3">गाँव को सुंदर और कब्रिस्तान को साफ़-सुथरा बनाने में हाथ बटाएं</h2>
+        <p class="text-muted fs-6 mb-4">
+          सिर्फ पैसे ही नहीं, आपका थोड़ा सा समय और मेहनत भी बहुत काम आएगी। छुट्टी के दिन पेड़ लगाने, साफ़-सफ़ाई और रख-रखाव में अपना सहयोग दें।
+        </p>
+
+        <div class="d-flex flex-column gap-3 mb-4">
+          <div class="d-flex align-items-start gap-3">
+            <div class="rounded-circle bg-success text-white p-2 d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
+              <i class="bi bi-check2"></i>
+            </div>
+            <div>
+              <div class="fw-bold">पेड़-पौधे लगाना और देखभाल</div>
+              <small class="text-muted">पेड़ों में पानी देना और उनकी रखवाली करना।</small>
+            </div>
+          </div>
+          <div class="d-flex align-items-start gap-3">
+            <div class="rounded-circle bg-success text-white p-2 d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
+              <i class="bi bi-check2"></i>
+            </div>
+            <div>
+              <div class="fw-bold">कब्रिस्तान की सफ़ाई और देखभाल</div>
+              <small class="text-muted">घास-फूस काटना, रास्ते बनाना और लाइट का इंतज़ाम।</small>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Volunteer Form -->
+      <div class="col-lg-6">
+        <div class="card card-bagiya p-4 border-0 shadow">
+          <h4 class="fw-bold text-bagiya-dark mb-3"><i class="bi bi-person-plus-fill me-2 text-success"></i>स्वयंसेवक (Volunteer) बनें</h4>
+          <form action="{% url 'public:volunteer' %}" method="post">
+            {% csrf_token %}
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label small fw-bold">पूरा नाम</label>
+                {{ volunteer_form.full_name }}
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-bold">मोबाइल नंबर</label>
+                {{ volunteer_form.phone }}
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-bold">गाँव / मोहल्ला</label>
+                {{ volunteer_form.village_mohalla }}
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-bold">कब समय दे सकते हैं</label>
+                {{ volunteer_form.availability }}
+              </div>
+              <div class="col-12">
+                <label class="form-label small fw-bold">आप क्या काम कर सकते हैं</label>
+                {{ volunteer_form.skills_interest }}
+              </div>
+              <div class="col-12">
+                <button type="submit" class="btn btn-bagiya-primary w-100 py-2">
+                  <i class="bi bi-send-fill me-1"></i> स्वयंसेवक बनें / जुड़ें
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

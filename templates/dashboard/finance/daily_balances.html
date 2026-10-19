@@ -1,0 +1,69 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% load static currency_tags %}
+
+{% block page_title %}दैनिक बैलेंस शीट (Daily Opening & Closing Balances){% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+  <div>
+    <h4 class="fw-bold text-bagiya-dark mb-0">दैनिक बैलेंस शीट (Daily Balance Ledger)</h4>
+    <small class="text-muted">Formula: Closing Balance = Opening Balance + Confirmed Income - Paid Expenses</small>
+  </div>
+  
+  <!-- Recalculate Form -->
+  <form method="post" class="d-flex gap-2">
+    {% csrf_token %}
+    <input type="date" name="recalculate_date" value="{{ today|date:'Y-m-d' }}" class="form-control form-control-sm" required>
+    <button type="submit" class="btn btn-primary btn-sm text-nowrap">
+      <i class="bi bi-calculator me-1"></i> तिथि बैलेंस पुनर्गणना
+    </button>
+  </form>
+</div>
+
+<div class="card card-bagiya border-0 shadow-sm">
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0 font-monospace text-center">
+      <thead class="table-light">
+        <tr>
+          <th class="text-start">दिनांक (Date)</th>
+          <th class="text-end">प्रारंभिक शेष (Opening Balance)</th>
+          <th class="text-end text-success">दिन का दान (+)</th>
+          <th class="text-end text-danger">दिन का खर्च (-)</th>
+          <th class="text-end text-primary">अंतिम शेष (Closing Balance)</th>
+          <th>समाधान स्थिति</th>
+          <th>ऑडिट नोट</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in page_obj %}
+        <tr>
+          <td class="text-start fw-bold text-dark font-sans">{{ row.date|date:"d M Y (l)" }}</td>
+          <td class="text-end text-secondary fw-semibold">{{ row.opening_balance|inr }}</td>
+          <td class="text-end text-success fw-bold">+{{ row.total_income|inr }}</td>
+          <td class="text-end text-danger fw-bold">-{{ row.total_expense|inr }}</td>
+          <td class="text-end text-primary fw-extrabold fs-6">{{ row.closing_balance|inr }}</td>
+          <td>
+            {% if row.is_reconciled %}
+              <span class="badge bg-success-subtle text-success border border-success">
+                <i class="bi bi-check-circle me-1"></i> सत्यापित
+              </span>
+            {% else %}
+              <span class="badge bg-secondary-subtle text-secondary">सामान्य</span>
+            {% endif %}
+          </td>
+          <td class="small text-muted font-sans text-start">{{ row.notes|default:"-" }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="7" class="text-center py-5 text-muted font-sans">
+            कोई दैनिक स्नैपशॉट नहीं मिला। ऊपर दिए गए बटन से आज की तिथि का बैलेंस जोड़ें।
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% include 'includes/pagination.html' %}
+{% endblock %}

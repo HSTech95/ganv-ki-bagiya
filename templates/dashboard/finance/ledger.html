@@ -1,0 +1,160 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% load static currency_tags %}
+
+{% block page_title %}सामान्य वित्तीय लेजर (General Ledger){% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+  <div>
+    <h4 class="fw-bold text-bagiya-dark mb-0">सामान्य लेजर (General Ledger & Audit Trail)</h4>
+    <small class="text-muted">अपरिवर्तनीय (Immutable) लेखा प्रविष्टियां एवं प्रत्येक खाते का रनिंग बैलेंस।</small>
+  </div>
+  <div class="d-flex gap-2">
+    <a href="{% url 'reports:ledger_excel' %}" class="btn btn-outline-success btn-sm">
+      <i class="bi bi-file-earmark-excel me-1"></i> लेजर Excel डाउनलोड
+    </a>
+    <a href="{% url 'reports:financial_statement_pdf' %}" class="btn btn-outline-danger btn-sm">
+      <i class="bi bi-file-earmark-pdf me-1"></i> ऑडिट स्टेटमेंट PDF
+    </a>
+  </div>
+</div>
+
+<!-- Filters -->
+<div class="card card-bagiya p-3 border-0 shadow-sm mb-4">
+  <form method="get" class="row g-2 align-items-center">
+    <div class="col-md-3">
+      <input type="text" name="search" value="{{ search }}" class="form-control form-control-sm" placeholder="ID या विवरण खोजें...">
+    </div>
+    <div class="col-md-3">
+      <select name="account" class="form-select form-select-sm">
+        <option value="">-- समस्त खाते --</option>
+        {% for acc in accounts %}
+          <option value="{{ acc.id }}" {% if account_filter == acc.id %}selected{% endif %}>{{ acc.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-2">
+      <select name="type" class="form-select form-select-sm">
+        <option value="">-- प्रकार --</option>
+        {% for code, label in entry_types %}
+          <option value="{{ code }}" {% if type_filter == code %}selected{% endif %}>{{ label|truncatewords:2 }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-2">
+      <input type="date" name="start_date" value="{{ start_date }}" class="form-control form-control-sm" placeholder="From">
+    </div>
+    <div class="col-md-2 d-flex gap-1">
+      <button type="submit" class="btn btn-bagiya-primary btn-sm flex-grow-1"><i class="bi bi-filter"></i> फिल्टर</button>
+      <a href="{% url 'finance:dashboard_ledger' %}" class="btn btn-outline-secondary btn-sm">रीसेट</a>
+    </div>
+  </form>
+</div>
+
+<!-- Ledger Table -->
+<div class="card card-bagiya border-0 shadow-sm">
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0 font-monospace" style="font-size: 0.88rem;">
+      <thead class="table-dark" style="background-color: #073822;">
+        <tr>
+          <th>दिनांक</th>
+          <th>लेजर ID</th>
+          <th>खाता (Account)</th>
+          <th>प्रविष्टि प्रकार</th>
+          <th>विवरण / Narration</th>
+          <th class="text-end">राशि (₹)</th>
+          <th class="text-end">नया शेष (Balance After)</th>
+          <th class="text-center">ऑडिट स्थिति</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in page_obj %}
+        <tr class="{% if row.is_reversed %}bg-light text-decoration-line-through opacity-75{% endif %}">
+          <td class="text-nowrap">{{ row.entry_date|date:"Y-m-d" }}</td>
+          <td class="fw-bold">{{ row.entry_id }}</td>
+          <td>{{ row.account.name }}</td>
+          <td>
+            {% if row.entry_type == 'INCOME' or row.entry_type == 'ADJUSTMENT_CREDIT' or row.entry_type == 'TRANSFER_IN' %}
+              <span class="badge bg-success-subtle text-success border border-success">
+                {{ row.get_entry_type_display }}
+              </span>
+            {% elif row.entry_type == 'REVERSAL' %}
+              <span class="badge bg-warning-subtle text-dark border border-warning">
+                {{ row.get_entry_type_display }}
+              </span>
+            {% else %}
+              <span class="badge bg-danger-subtle text-danger border border-danger">
+                {{ row.get_entry_type_display }}
+              </span>
+            {% endif %}
+          </td>
+          <td class="text-truncate" style="max-width: 250px;" title="{{ row.description }}">
+            {{ row.description }}
+            {% if row.reference_donation %}
+              <a href="{% url 'donations:dashboard_detail' row.reference_donation.donation_id %}" class="badge bg-light text-primary border text-decoration-none">Donation</a>
+            {% elif row.reference_expense %}
+              <a href="{% url 'expenses:dashboard_detail' row.reference_expense.expense_id %}" class="badge bg-light text-danger border text-decoration-none">Expense</a>
+            {% endif %}
+          </td>
+          <td class="text-end fw-bold {% if row.entry_type == 'INCOME' or row.entry_type == 'ADJUSTMENT_CREDIT' or row.entry_type == 'TRANSFER_IN' %}text-success{% else %}text-danger{% endif %}">
+            {% if row.entry_type == 'INCOME' or row.entry_type == 'ADJUSTMENT_CREDIT' or row.entry_type == 'TRANSFER_IN' %}+{% else %}-{% endif %}{{ row.amount|inr }}
+          </td>
+          <td class="text-end fw-bold text-dark">
+            {{ row.balance_after|inr }}
+          </td>
+          <td class="text-center">
+            {% if row.is_reversed %}
+              <span class="badge bg-secondary">रद्द (Reversed)</span>
+            {% elif user.is_super_admin or user.role == 'TREASURER' %}
+              {% if row.entry_type != 'REVERSAL' %}
+                <button type="button" class="btn btn-outline-danger btn-sm p-1" style="font-size: 0.7rem;" data-bs-toggle="modal" data-bs-target="#reverseModal{{ row.id }}" title="Reversal / संशोधन प्रविष्टि">
+                  रिवर्स करें
+                </button>
+
+                <!-- Reversal Confirmation Modal -->
+                <div class="modal fade text-start font-sans" id="reverseModal{{ row.id }}" tabindex="-1" aria-hidden="true">
+                  <div class="modal-dialog">
+                    <div class="modal-content">
+                      <div class="modal-header bg-danger text-white">
+                        <h6 class="modal-title fw-bold">लेजर संशोधन / निरस्तीकरण (Reversal Entry)</h6>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                      </div>
+                      <form method="post" action="{% url 'finance:dashboard_reverse_entry' %}">
+                        {% csrf_token %}
+                        <div class="modal-body">
+                          <p class="small text-muted mb-3">
+                            लेजर में दर्ज प्रविष्टि कभी हटाई नहीं जाती। इस प्रविष्टि को ठीक करने के लिए विपरीत (Opposite) समायोजन प्रविष्टि स्वतः दर्ज होगी।
+                          </p>
+                          <div class="p-2 bg-light rounded mb-3 small">
+                            <strong>प्रविष्टि:</strong> {{ row.entry_id }} &bull; राशि: <strong>{{ row.amount|inr }}</strong> &bull; खाता: {{ row.account.name }}
+                          </div>
+                          <input type="hidden" name="entry_id" value="{{ row.entry_id }}">
+                          <label class="form-label small fw-bold">निरस्तीकरण का कारण (Audit Reason) *</label>
+                          <textarea name="reason" class="form-control" rows="3" required placeholder="संशोधन या गलती का स्पष्ट कारण लिखें..."></textarea>
+                        </div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">रद्द करें</button>
+                          <button type="submit" class="btn btn-danger btn-sm fw-bold">विपरीत प्रविष्टि पोस्ट करें</button>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+              {% endif %}
+            {% else %}
+              <span class="text-success small"><i class="bi bi-shield-check"></i> सुरक्षित</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="8" class="text-center py-5 text-muted">कोई लेजर प्रविष्टि नहीं मिली।</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% include 'includes/pagination.html' %}
+{% endblock %}

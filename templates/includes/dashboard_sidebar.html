@@ -1,0 +1,172 @@
+<aside class="dashboard-sidebar">
+  <div class="brand d-flex align-items-center justify-content-between">
+    <div class="d-flex align-items-center gap-2">
+      <div class="brand-icon bg-success" style="width: 36px; height: 36px; font-size: 1.2rem;">
+        <i class="bi bi-tree-fill text-white"></i>
+      </div>
+      <div>
+        <div class="fw-bold text-white fs-6 lh-sm">गाँव की बगिया</div>
+        <small class="text-white-50" style="font-size: 0.7rem;">कमेटी पैनल (Admin)</small>
+      </div>
+    </div>
+    <a href="{% url 'public:home' %}" class="btn btn-outline-light btn-sm" title="पब्लिक वेबसाइट देखें">
+      <i class="bi bi-box-arrow-up-right"></i>
+    </a>
+  </div>
+
+  <div class="p-3 bg-black bg-opacity-25 border-bottom border-secondary border-opacity-25">
+    <div class="d-flex align-items-center gap-2">
+      <div class="rounded-circle bg-success text-white d-flex align-items-center justify-content-center" style="width: 38px; height: 38px; font-weight: bold;">
+        {{ user.first_name|default:user.username|make_list|first|upper }}
+      </div>
+      <div class="overflow-hidden">
+        <div class="text-white fw-bold small text-truncate">{{ user.get_full_name|default:user.username }}</div>
+        <span class="badge bg-success text-white" style="font-size: 0.65rem;">
+          {{ user.get_role_display }}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <nav class="sidebar-nav overflow-y-auto">
+    <a href="{% url 'dashboard:index' %}" class="sidebar-link {% if request.path == '/dashboard/' %}active{% endif %}">
+      <i class="bi bi-speedometer2"></i>
+      <span>डैशबोर्ड (Home)</span>
+    </a>
+
+    <!-- Section 1: Financial Management -->
+    <div class="sidebar-section-title">पैसों का हिसाब-किताब (Finance)</div>
+    
+    <a href="{% url 'donations:dashboard_list' %}" class="sidebar-link {% if 'dashboard/donations' in request.path and 'create' not in request.path %}active{% endif %}">
+      <i class="bi bi-cash-stack"></i>
+      <span>दान की सूची</span>
+    </a>
+
+    {% if user.can_manage_finances %}
+    <a href="{% url 'donations:dashboard_create' %}" class="sidebar-link {% if 'dashboard/donations/create' in request.path %}active{% endif %}">
+      <i class="bi bi-plus-circle"></i>
+      <span>नया दान जोड़ें</span>
+    </a>
+    {% endif %}
+
+    <a href="{% url 'donors:dashboard_list' %}" class="sidebar-link {% if 'dashboard/donors' in request.path %}active{% endif %}">
+      <i class="bi bi-people-fill"></i>
+      <span>दान देने वाले लोग</span>
+    </a>
+
+    <a href="{% url 'expenses:dashboard_list' %}" class="sidebar-link {% if 'dashboard/expenses' in request.path and 'create' not in request.path %}active{% endif %}">
+      <i class="bi bi-receipt-cutoff"></i>
+      <span>खर्च का हिसाब</span>
+    </a>
+
+    <a href="{% url 'expenses:dashboard_create' %}" class="sidebar-link {% if 'dashboard/expenses/create' in request.path %}active{% endif %}">
+      <i class="bi bi-dash-circle"></i>
+      <span>नया खर्च जोड़ें</span>
+    </a>
+
+    <a href="{% url 'finance:dashboard_ledger' %}" class="sidebar-link {% if 'dashboard/finance/ledger' in request.path %}active{% endif %}">
+      <i class="bi bi-journal-text"></i>
+      <span>खाता बही (Ledger)</span>
+    </a>
+
+    <a href="{% url 'finance:dashboard_daily_balances' %}" class="sidebar-link {% if 'dashboard/finance/daily-balances' in request.path %}active{% endif %}">
+      <i class="bi bi-calendar2-week"></i>
+      <span>रोज़ का बैलेंस</span>
+    </a>
+
+    <a href="{% url 'finance:dashboard_accounts' %}" class="sidebar-link {% if 'dashboard/finance/accounts' in request.path %}active{% endif %}">
+      <i class="bi bi-bank"></i>
+      <span>बैंक और नकद खाते</span>
+    </a>
+
+    {% if user.can_manage_finances %}
+    <a href="{% url 'payments:dashboard_upi_reconciliation' %}" class="sidebar-link {% if 'dashboard/finance/upi-reconciliation' in request.path %}active{% endif %}">
+      <i class="bi bi-qr-code-scan"></i>
+      <span>UPI UTR चेक करें</span>
+    </a>
+
+    <a href="{% url 'finance:dashboard_transfer' %}" class="sidebar-link {% if 'dashboard/finance/transfer' in request.path %}active{% endif %}">
+      <i class="bi bi-arrow-left-right"></i>
+      <span>फंड ट्रांसफर</span>
+    </a>
+
+    <a href="{% url 'finance:dashboard_reconciliation' %}" class="sidebar-link {% if 'dashboard/finance/reconciliation' in request.path %}active{% endif %}">
+      <i class="bi bi-check2-all"></i>
+      <span>बैंक खाता मिलान (Reconcile)</span>
+    </a>
+    {% endif %}
+
+    <!-- Section 2: Projects & Maintenance -->
+    <div class="sidebar-section-title">काम और देखरेख (Work)</div>
+
+    <a href="{% url 'projects:dashboard_list' %}" class="sidebar-link {% if 'dashboard/projects' in request.path and 'create' not in request.path %}active{% endif %}">
+      <i class="bi bi-hammer"></i>
+      <span>गाँव के प्रोजेक्ट्स</span>
+    </a>
+
+    {% if user.is_project_manager or user.is_super_admin %}
+    <a href="{% url 'projects:dashboard_create' %}" class="sidebar-link {% if 'dashboard/projects/create' in request.path %}active{% endif %}">
+      <i class="bi bi-folder-plus"></i>
+      <span>नया प्रोजेक्ट जोड़ें</span>
+    </a>
+    {% endif %}
+
+    <a href="{% url 'maintenance:dashboard_list' %}" class="sidebar-link {% if 'dashboard/maintenance' in request.path and 'create' not in request.path %}active{% endif %}">
+      <i class="bi bi-tools"></i>
+      <span>सफ़ाई और देखरेख</span>
+    </a>
+
+    <a href="{% url 'maintenance:dashboard_create' %}" class="sidebar-link {% if 'dashboard/maintenance/create' in request.path %}active{% endif %}">
+      <i class="bi bi-calendar-plus"></i>
+      <span>नया काम जोड़ें</span>
+    </a>
+
+    <!-- Section 3: Media & Public -->
+    <div class="sidebar-section-title">फोटो और बातचीत</div>
+
+    <a href="{% url 'gallery:dashboard_list' %}" class="sidebar-link {% if 'dashboard/gallery' in request.path %}active{% endif %}">
+      <i class="bi bi-images"></i>
+      <span>फोटो व वीडियो गैलरी</span>
+    </a>
+
+    <a href="{% url 'content:dashboard_inquiries' %}" class="sidebar-link {% if 'dashboard/inquiries' in request.path %}active{% endif %}">
+      <i class="bi bi-chat-left-dots"></i>
+      <span>मददगार और संदेश</span>
+    </a>
+
+    <!-- Section 4: Reports & Auditing -->
+    <div class="sidebar-section-title">रिपोर्ट्स और रिकॉर्ड (Reports)</div>
+
+    <a href="{% url 'reports:index' %}" class="sidebar-link {% if 'dashboard/reports' in request.path %}active{% endif %}">
+      <i class="bi bi-file-earmark-spreadsheet"></i>
+      <span>रिपोर्ट्स (Excel/PDF)</span>
+    </a>
+
+    <a href="{% url 'accounts:dashboard_audit_logs' %}" class="sidebar-link {% if 'dashboard/audit-logs' in request.path %}active{% endif %}">
+      <i class="bi bi-shield-lock"></i>
+      <span>काम का रिकॉर्ड (Audit Logs)</span>
+    </a>
+
+    {% if user.is_super_admin %}
+    <a href="{% url 'accounts:dashboard_users' %}" class="sidebar-link {% if 'dashboard/users' in request.path %}active{% endif %}">
+      <i class="bi bi-people"></i>
+      <span>यूज़र्स और ज़िम्मेदारियाँ</span>
+    </a>
+
+    <a href="{% url 'content:dashboard_settings' %}" class="sidebar-link {% if 'dashboard/settings' in request.path %}active{% endif %}">
+      <i class="bi bi-gear"></i>
+      <span>वेबसाइट सेटिंग्स (UPI/बैंक)</span>
+    </a>
+    {% endif %}
+  </nav>
+
+  <div class="p-3 border-top border-secondary border-opacity-25">
+    <form action="{% url 'accounts:logout' %}" method="post">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-danger btn-sm w-100 d-flex align-items-center justify-content-center gap-2">
+        <i class="bi bi-box-arrow-right"></i>
+        <span>लॉग आउट</span>
+      </button>
+    </form>
+  </div>
+</aside>

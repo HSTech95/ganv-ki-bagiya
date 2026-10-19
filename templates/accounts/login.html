@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}समिति सदस्य लॉगिन | गाँव की बगिया{% endblock %}
+
+{% block content %}
+<section class="py-5" style="min-height: 75vh; display: flex; align-items: center;">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-6 col-lg-5">
+        <div class="card card-bagiya p-4 p-md-5 border-0 shadow-lg">
+          <div class="text-center mb-4">
+            <div class="brand-icon bg-success mx-auto mb-3" style="width: 54px; height: 54px; font-size: 1.6rem;">
+              <i class="bi bi-shield-lock-fill text-white"></i>
+            </div>
+            <h3 class="fw-bold text-bagiya-dark mb-1">समिति लॉगिन</h3>
+            <p class="small text-muted mb-0">गाँव की बगिया एवं वित्तीय प्रबंधन पोर्टल</p>
+          </div>
+
+          <form method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+              <label class="form-label small fw-bold">उपयोगकर्ता नाम (Username)</label>
+              {{ form.username }}
+            </div>
+            <div class="mb-4">
+              <label class="form-label small fw-bold">पासवर्ड (Password)</label>
+              {{ form.password }}
+            </div>
+            <button type="submit" class="btn btn-bagiya-primary btn-lg w-100 py-3 fw-bold shadow">
+              <i class="bi bi-box-arrow-in-right me-1"></i> डैशबोर्ड में प्रवेश करें
+            </button>
+          </form>
+
+          <div class="mt-4 pt-3 border-top text-center">
+            <small class="text-muted d-block">
+              समस्या निवारण या नए खाते हेतु व्यवस्थापक (Super Admin) से संपर्क करें।
+            </small>
+            <a href="{% url 'public:home' %}" class="small text-success fw-bold text-decoration-none mt-2 d-inline-block">
+              &larr; मुख्य वेबसाइट पर वापस जाएं
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

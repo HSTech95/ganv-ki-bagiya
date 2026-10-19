@@ -1,0 +1,114 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% load static %}
+
+{% block page_title %}साइट सेटिंग्स एवं UPI विवरण{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-9">
+    <div class="card card-bagiya p-4 border-0 shadow">
+      <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
+        <div>
+          <h4 class="fw-bold text-bagiya-dark mb-0">साइट सेटिंग्स एवं संगठन विवरण</h4>
+          <small class="text-muted">हेल्पलाइन फोन, पता, बैंक खाता एवं UPI QR कोड सेटिंग्स।</small>
+        </div>
+      </div>
+
+      <form method="post">
+        {% csrf_token %}
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label small fw-bold">संगठन / पहल का नाम *</label>
+            {{ form.ngo_name }}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small fw-bold">टैगलाइन / स्लोगन *</label>
+            {{ form.tagline }}
+          </div>
+
+          <div class="col-12">
+            <label class="form-label small fw-bold">होमपेज मुख्य शीर्षक (Hero Title)</label>
+            {{ form.hero_title }}
+          </div>
+          <div class="col-12">
+            <label class="form-label small fw-bold">होमपेज उप-शीर्षक (Hero Subtitle)</label>
+            {{ form.hero_subtitle }}
+          </div>
+          <div class="col-12">
+            <label class="form-label small fw-bold">हमारे बारे में (About Us Text)</label>
+            {{ form.about_text }}
+          </div>
+
+          <!-- Financial / UPI Settings -->
+          <div class="col-12 border-top pt-3">
+            <h6 class="fw-bold text-success mb-3"><i class="bi bi-qr-code me-1"></i>दान एवं UPI विवरण</h6>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small fw-bold">आधिकारिक UPI VPA ID *</label>
+            {{ form.upi_id }}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small fw-bold">UPI मर्चेंट / पेयी का नाम *</label>
+            {{ form.upi_merchant_name }}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small fw-bold">बैंक का नाम</label>
+            {{ form.bank_name }}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small fw-bold">खाता क्रमांक</label>
+            {{ form.bank_account_number }}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small fw-bold">IFSC कोड</label>
+            {{ form.bank_ifsc }}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small fw-bold">बैंक शाखा</label>
+            {{ form.bank_branch }}
+          </div>
+
+          <!-- Contact details -->
+          <div class="col-12 border-top pt-3">
+            <h6 class="fw-bold text-primary mb-3"><i class="bi bi-telephone me-1"></i>संपर्क एवं नेतृत्व विवरण</h6>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small fw-bold">हेल्पलाइन फोन *</label>
+            {{ form.contact_phone }}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small fw-bold">ईमेल पता *</label>
+            {{ form.contact_email }}
+          </div>
+          <div class="col-12">
+            <label class="form-label small fw-bold">कार्यालय पता *</label>
+            {{ form.address }}
+          </div>
+          <div class="col-12">
+            <label class="form-label small fw-bold">गूगल मैप लिंक</label>
+            {{ form.map_link }}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small fw-bold">समिति अध्यक्ष का नाम</label>
+            {{ form.president_name }}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small fw-bold">कोषाध्यक्ष का नाम</label>
+            {{ form.treasurer_name }}
+          </div>
+          <div class="col-12">
+            <label class="form-label small fw-bold">अध्यक्ष का संदेश</label>
+            {{ form.president_message }}
+          </div>
+
+          <div class="col-12 mt-4">
+            <button type="submit" class="btn btn-bagiya-primary btn-lg w-100 py-3 shadow">
+              <i class="bi bi-save me-1"></i> सेटिंग्स सुरक्षित करें
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

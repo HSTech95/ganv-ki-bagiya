@@ -1,0 +1,98 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% load static currency_tags %}
+
+{% block page_title %}रिपोर्ट्स एवं डेटा निर्यात (Financial Reports & Exports){% endblock %}
+
+{% block content %}
+<div class="mb-4">
+  <h4 class="fw-bold text-bagiya-dark mb-0">वित्तीय रिपोर्ट्स एवं ऑडिट एक्सपोर्ट</h4>
+  <small class="text-muted">समिति बैठकों, ग्राम सभा प्रस्तुति अथवा वार्षिक ऑडिट हेतु अधिकृत रिपोर्ट्स डाउनलोड करें।</small>
+</div>
+
+<div class="row g-4 mb-4">
+  <!-- Card 1: Official Financial Statement PDF -->
+  <div class="col-lg-6">
+    <div class="card card-bagiya h-100 p-4 border-0 shadow-sm border-start border-4 border-danger">
+      <div class="d-flex align-items-center gap-3 mb-3">
+        <div class="stat-icon-wrapper bg-danger-subtle text-danger" style="width: 50px; height: 50px; font-size: 1.5rem;">
+          <i class="bi bi-file-earmark-pdf-fill"></i>
+        </div>
+        <div>
+          <h5 class="fw-bold text-bagiya-dark mb-0">पूर्ण वित्तीय ऑडिट स्टेटमेंट (PDF)</h5>
+          <small class="text-muted">गाँव की बगिया समिति के मुहर एवं हस्ताक्षर सहित आधिकारिक रिपोर्ट</small>
+        </div>
+      </div>
+      <p class="small text-muted mb-4">
+        इस रिपोर्ट में कुल प्राप्त आय, कुल हुए खर्च, नकद व बैंक खातों का विभाजन, प्रोजेक्ट-वार स्थिति एवं समिति अध्यक्ष व कोषाध्यक्ष का प्रमाणीकरण सम्मिलित है।
+      </p>
+      <a href="{% url 'reports:financial_statement_pdf' %}" class="btn btn-danger btn-lg w-100 py-2 fw-bold shadow-sm">
+        <i class="bi bi-file-earmark-pdf me-2"></i> आधिकारिक PDF स्टेटमेंट डाउनलोड करें
+      </a>
+    </div>
+  </div>
+
+  <!-- Card 2: General Ledger Excel -->
+  <div class="col-lg-6">
+    <div class="card card-bagiya h-100 p-4 border-0 shadow-sm border-start border-4 border-success">
+      <div class="d-flex align-items-center gap-3 mb-3">
+        <div class="stat-icon-wrapper bg-success-subtle text-success" style="width: 50px; height: 50px; font-size: 1.5rem;">
+          <i class="bi bi-file-earmark-excel-fill"></i>
+        </div>
+        <div>
+          <h5 class="fw-bold text-bagiya-dark mb-0">सामान्य लेजर बहीखाता (General Ledger Excel)</h5>
+          <small class="text-muted">सभी तिथिवार आय, व्यय एवं रनिंग बैलेंस प्रविष्टियों की स्प्रेडशीट</small>
+        </div>
+      </div>
+      <p class="small text-muted mb-4">
+        इस एक्सेल शीट में लेजर ID, खाता, राशि, प्रकार और बही शेष का विस्तृत सूत्रबद्ध (formulaic) रिकॉर्ड उपलब्ध है।
+      </p>
+      <a href="{% url 'reports:ledger_excel' %}" class="btn btn-success btn-lg w-100 py-2 fw-bold shadow-sm">
+        <i class="bi bi-file-earmark-excel me-2"></i> लेजर Excel शीट डाउनलोड करें
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- Section 2: Detailed Registers (Donations & Expenses) -->
+<div class="row g-4">
+  <!-- Donations Exports -->
+  <div class="col-lg-6">
+    <div class="card card-bagiya h-100 p-4 border-0 shadow-sm">
+      <h5 class="fw-bold text-bagiya-dark mb-2">
+        <i class="bi bi-cash-coin text-success me-2"></i>दान संग्रह रजिस्टर (Donations Register)
+      </h5>
+      <p class="small text-muted mb-3">
+        समस्त दानदाताओं की सूची, रसीद क्रमांक, माध्यम, बैंक UTR और दान उद्देश्य।
+      </p>
+      <div class="d-flex gap-2">
+        <a href="{% url 'reports:donations_excel' %}" class="btn btn-outline-success flex-grow-1 py-2">
+          <i class="bi bi-file-earmark-excel me-1"></i> Excel (.xlsx)
+        </a>
+        <a href="{% url 'reports:donations_csv' %}" class="btn btn-outline-secondary flex-grow-1 py-2">
+          <i class="bi bi-filetype-csv me-1"></i> CSV डेटा
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Expenses Exports -->
+  <div class="col-lg-6">
+    <div class="card card-bagiya h-100 p-4 border-0 shadow-sm">
+      <h5 class="fw-bold text-bagiya-dark mb-2">
+        <i class="bi bi-receipt text-danger me-2"></i>खर्च एवं वाउचर रजिस्टर (Expenditure Register)
+      </h5>
+      <p class="small text-muted mb-3">
+        निर्माण सामग्री, मजदूरी व रख-रखाव के सभी खर्चों, बिल नंबर एवं प्राप्तकर्ताओं का विवरण।
+      </p>
+      <div class="d-flex gap-2">
+        <a href="{% url 'reports:expenses_excel' %}" class="btn btn-outline-danger flex-grow-1 py-2">
+          <i class="bi bi-file-earmark-excel me-1"></i> Excel (.xlsx)
+        </a>
+        <a href="{% url 'reports:expenses_csv' %}" class="btn btn-outline-secondary flex-grow-1 py-2">
+          <i class="bi bi-filetype-csv me-1"></i> CSV डेटा
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

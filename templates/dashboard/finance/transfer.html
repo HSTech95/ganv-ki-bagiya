@@ -1,0 +1,79 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% load static currency_tags %}
+
+{% block page_title %}आंतरिक फंड ट्रांसफर (Internal Transfer){% endblock %}
+
+{% block content %}
+<div class="row g-4">
+  <div class="col-lg-5">
+    <div class="card card-bagiya p-4 border-0 shadow">
+      <h4 class="fw-bold text-bagiya-dark mb-2">आंतरिक फंड ट्रांसफर</h4>
+      <p class="small text-muted mb-4">
+        एक खाते से दूसरे खाते में राशि स्थानांतरित करें (उदा. बैंक से नकद पेटी में अथवा गेटवे से बैंक में)। इससे कुल संस्था कोष प्रभावित नहीं होता।
+      </p>
+
+      <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+          <label class="form-label small fw-bold">स्थानांतरण दिनांक *</label>
+          {{ form.transfer_date }}
+        </div>
+        <div class="mb-3">
+          <label class="form-label small fw-bold text-danger">स्रोत खाता (Source Account - निकासी) *</label>
+          {{ form.from_account }}
+        </div>
+        <div class="mb-3">
+          <label class="form-label small fw-bold text-success">गंतव्य खाता (Destination - जमा) *</label>
+          {{ form.to_account }}
+        </div>
+        <div class="mb-3">
+          <label class="form-label small fw-bold">स्थानांतरित राशि (₹) *</label>
+          {{ form.amount }}
+        </div>
+        <div class="mb-4">
+          <label class="form-label small fw-bold">कारण / उद्देश्य *</label>
+          {{ form.reason }}
+        </div>
+
+        <button type="submit" class="btn btn-bagiya-primary w-100 py-3 shadow" onclick="return confirm('क्या आप फंड ट्रांसफर सुनिश्चित करना चाहते हैं? दोनों खातों का लेजर स्वतः अपडेट होगा।');">
+          <i class="bi bi-arrow-left-right me-1"></i> फंड ट्रांसफर पूर्ण करें
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <div class="col-lg-7">
+    <div class="card card-bagiya p-4 border-0 shadow">
+      <h5 class="fw-bold text-bagiya-dark mb-3">हालिया फंड ट्रांसफर इतिहास</h5>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0 font-monospace small">
+          <thead class="table-light font-sans">
+            <tr>
+              <th>दिनांक</th>
+              <th>स्रोत -> गंतव्य</th>
+              <th>कारण</th>
+              <th class="text-end">राशि (₹)</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for tr in transfers %}
+            <tr>
+              <td>{{ tr.transfer_date|date:"Y-m-d" }}</td>
+              <td>
+                <span class="text-danger fw-bold">{{ tr.from_account.name }}</span>
+                <i class="bi bi-arrow-right mx-1 text-muted"></i>
+                <span class="text-success fw-bold">{{ tr.to_account.name }}</span>
+              </td>
+              <td class="font-sans small text-muted">{{ tr.reason }}</td>
+              <td class="text-end fw-bold text-dark">{{ tr.amount|inr }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="4" class="text-center py-4 text-muted font-sans">कोई ट्रांसफर रिकॉर्ड नहीं।</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

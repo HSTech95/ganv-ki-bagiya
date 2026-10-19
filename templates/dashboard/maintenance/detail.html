@@ -1,0 +1,130 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% load static %}
+
+{% block page_title %}{{ task.title }} | रख-रखाव कार्य विवरण{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <a href="{% url 'maintenance:dashboard_list' %}" class="btn btn-outline-secondary btn-sm mb-1">
+      <i class="bi bi-arrow-left me-1"></i> समस्त रख-रखाव कार्य
+    </a>
+    <h4 class="fw-bold text-bagiya-dark mb-0">{{ task.title }}</h4>
+  </div>
+  <div>
+    <span class="badge bg-{% if task.status == 'COMPLETED' %}success{% elif task.status == 'IN_PROGRESS' %}primary{% else %}warning text-dark{% endif %} fs-6 px-3 py-2">
+      {{ task.get_status_display }}
+    </span>
+  </div>
+</div>
+
+<div class="row g-4">
+  <div class="col-lg-7">
+    <div class="card card-bagiya p-4 border-0 shadow-sm mb-4">
+      <h5 class="fw-bold text-bagiya-dark mb-3">कार्य विवरण</h5>
+      <table class="table table-bordered align-middle">
+        <tbody>
+          <tr>
+            <th class="bg-light" style="width: 35%;">स्थल (Facility):</th>
+            <td class="fw-bold text-dark">{{ task.get_facility_display }}</td>
+          </tr>
+          <tr>
+            <th class="bg-light">कार्य प्रकार:</th>
+            <td>{{ task.get_task_type_display }}</td>
+          </tr>
+          <tr>
+            <th class="bg-light">संबंधित प्रोजेक्ट:</th>
+            <td>{{ task.project.name|default:"स्वतंत्र रख-रखाव कार्य" }}</td>
+          </tr>
+          <tr>
+            <th class="bg-light">तय दिनांक:</th>
+            <td>{{ task.scheduled_date|date:"d F Y" }}</td>
+          </tr>
+          <tr>
+            <th class="bg-light">प्राथमिकता:</th>
+            <td><span class="badge bg-light text-dark border">{{ task.get_priority_display }}</span></td>
+          </tr>
+          <tr>
+            <th class="bg-light">आवंटित स्वयंसेवक:</th>
+            <td>{{ task.assigned_volunteer.get_full_name|default:task.assigned_volunteer.username|default:"अनआवंटित" }}</td>
+          </tr>
+          {% if task.description %}
+          <tr>
+            <th class="bg-light">निर्देश / विवरण:</th>
+            <td>{{ task.description }}</td>
+          </tr>
+          {% endif %}
+          {% if task.completed_date %}
+          <tr>
+            <th class="bg-light">पूर्णता दिनांक:</th>
+            <td class="text-success fw-bold">{{ task.completed_date|date:"d F Y" }}</td>
+          </tr>
+          <tr>
+            <th class="bg-light">समाप्ति रिपोर्ट:</th>
+            <td>{{ task.completion_notes }}</td>
+          </tr>
+          {% endif %}
+        </tbody>
+      </table>
+
+      <!-- Before and After Photos -->
+      <div class="row g-3 mt-3 pt-3 border-top">
+        <div class="col-6 text-center">
+          <small class="fw-bold text-muted d-block mb-2">पहले की स्थिति (Before Photo)</small>
+          {% if task.before_photo %}
+            <img src="{{ task.before_photo.url }}" class="img-fluid rounded border shadow-sm" style="max-height: 200px;" alt="Before">
+          {% else %}
+            <div class="bg-light rounded p-4 small text-muted">फोटो उपलब्ध नहीं</div>
+          {% endif %}
+        </div>
+        <div class="col-6 text-center">
+          <small class="fw-bold text-muted d-block mb-2">कार्य समाप्ति बाद की स्थिति (After Photo)</small>
+          {% if task.after_photo %}
+            <img src="{{ task.after_photo.url }}" class="img-fluid rounded border shadow-sm" style="max-height: 200px;" alt="After">
+          {% else %}
+            <div class="bg-light rounded p-4 small text-muted">फोटो उपलब्ध नहीं</div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Column: Mark Complete Action -->
+  <div class="col-lg-5">
+    {% if task.status != 'COMPLETED' %}
+    <div class="card card-bagiya p-4 border-2 border-success shadow-sm bg-success-subtle bg-opacity-25">
+      <h5 class="fw-bold text-success mb-2">
+        <i class="bi bi-check2-circle me-1"></i>कार्य पूर्ण चिन्हित करें
+      </h5>
+      <p class="small text-muted mb-3">कार्य समाप्ति की तारीख, अनुभव एवं कार्य के बाद की फोटो अपलोड करें।</p>
+
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="hidden" name="complete_task" value="1">
+        <div class="mb-3">
+          <label class="form-label small fw-bold">कार्य पूर्ण होने की तारीख *</label>
+          {{ complete_form.completion_date }}
+        </div>
+        <div class="mb-3">
+          <label class="form-label small fw-bold">समाप्ति विवरण / नोट्स *</label>
+          {{ complete_form.completion_notes }}
+        </div>
+        <div class="mb-4">
+          <label class="form-label small fw-bold">कार्य उपरांत फोटो (After Photo)</label>
+          {{ complete_form.after_photo }}
+        </div>
+        <button type="submit" class="btn btn-success w-100 py-2 fw-bold shadow-sm">
+          <i class="bi bi-check-lg me-1"></i> कार्य पूर्ण घोषित करें
+        </button>
+      </form>
+    </div>
+    {% else %}
+    <div class="card card-bagiya p-4 border-0 shadow-sm text-center">
+      <i class="bi bi-patch-check-fill fs-1 text-success mb-2"></i>
+      <h5 class="fw-bold text-bagiya-dark">यह कार्य सफलतापूर्वक पूर्ण हो चुका है</h5>
+      <p class="small text-muted mb-0">पूर्णता दिनांक: <strong>{{ task.completed_date|date:"d F Y" }}</strong></p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

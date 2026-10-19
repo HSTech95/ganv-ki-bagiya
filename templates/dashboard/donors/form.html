@@ -1,0 +1,66 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% load static %}
+
+{% block page_title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-7">
+    <div class="card card-bagiya p-4 p-md-5 border-0 shadow">
+      <h4 class="fw-bold text-bagiya-dark mb-1">{{ title }}</h4>
+      <p class="text-muted small mb-4">दानदाता का नाम और संपर्क विवरण दर्ज करें।</p>
+
+      <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+          <label class="form-label fw-bold small">दानदाता का नाम *</label>
+          {{ form.name }}
+        </div>
+
+        <div class="row g-3 mb-3">
+          <div class="col-md-6">
+            <label class="form-label fw-bold small">मोबाइल नंबर</label>
+            {{ form.phone }}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-bold small">ईमेल पता</label>
+            {{ form.email }}
+          </div>
+        </div>
+
+        <div class="row g-3 mb-3">
+          <div class="col-md-8">
+            <label class="form-label fw-bold small">पता / गांव / मोहल्ला</label>
+            {{ form.address }}
+          </div>
+          <div class="col-md-4">
+            <label class="form-label fw-bold small">PAN नंबर</label>
+            {{ form.pan_number }}
+          </div>
+        </div>
+
+        <div class="form-check mb-3">
+          {{ form.is_anonymous }}
+          <label class="form-check-label small fw-bold" for="{{ form.is_anonymous.id_for_label }}">
+            सार्वजनिक वेबसाइट पर नाम गोपनीय रखें (Keep Anonymous)
+          </label>
+        </div>
+
+        <div class="mb-4">
+          <label class="form-label fw-bold small">आंतरिक नोट / विवरण</label>
+          {{ form.notes }}
+        </div>
+
+        <div class="d-flex gap-2">
+          <button type="submit" class="btn btn-bagiya-primary px-4 py-2">
+            <i class="bi bi-check2-circle me-1"></i> सहेजें (Save)
+          </button>
+          <a href="{% url 'donors:dashboard_list' %}" class="btn btn-outline-secondary px-4 py-2">
+            रद्द करें
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

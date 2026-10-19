@@ -1,0 +1,145 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% load static currency_tags %}
+
+{% block page_title %}दान संग्रह रजिस्टर (Donations Register){% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+  <div>
+    <h4 class="fw-bold text-bagiya-dark mb-0">समस्त दान संग्रह रजिस्टर</h4>
+    <small class="text-muted">ऑनलाइन, यूपीआई एवं नकद दान प्रविष्टियों का पूर्ण विवरण।</small>
+  </div>
+  <div class="d-flex gap-2">
+    {% if user.can_manage_finances %}
+    <a href="{% url 'donations:dashboard_create' %}" class="btn btn-success btn-sm">
+      <i class="bi bi-plus-circle me-1"></i> नया दान दर्ज करें
+    </a>
+    {% endif %}
+    <a href="{% url 'reports:donations_excel' %}" class="btn btn-outline-success btn-sm">
+      <i class="bi bi-file-earmark-excel me-1"></i> Excel डाउनलोड
+    </a>
+    <a href="{% url 'reports:donations_csv' %}" class="btn btn-outline-secondary btn-sm">
+      <i class="bi bi-filetype-csv me-1"></i> CSV
+    </a>
+  </div>
+</div>
+
+<!-- Search & Filter Bar -->
+<div class="card card-bagiya p-3 border-0 shadow-sm mb-4">
+  <form method="get" class="row g-2 align-items-center">
+    <div class="col-md-3">
+      <input type="text" name="search" value="{{ search }}" class="form-control form-control-sm" placeholder="नाम, रसीद सं., UTR खोजें...">
+    </div>
+    <div class="col-md-2">
+      <select name="status" class="form-select form-select-sm">
+        <option value="">-- समस्त स्थितियां --</option>
+        {% for code, label in statuses %}
+          <option value="{{ code }}" {% if status_filter == code %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-2">
+      <select name="method" class="form-select form-select-sm">
+        <option value="">-- समस्त माध्यम --</option>
+        {% for code, label in methods %}
+          <option value="{{ code }}" {% if method_filter == code %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-3">
+      <select name="purpose" class="form-select form-select-sm">
+        <option value="">-- समस्त उद्देश्य --</option>
+        {% for code, label in purposes %}
+          <option value="{{ code }}" {% if purpose_filter == code %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-2 d-flex gap-1">
+      <button type="submit" class="btn btn-bagiya-primary btn-sm flex-grow-1"><i class="bi bi-search"></i> खोजें</button>
+      <a href="{% url 'donations:dashboard_list' %}" class="btn btn-outline-secondary btn-sm">रीसेट</a>
+    </div>
+  </form>
+</div>
+
+<!-- Table -->
+<div class="card card-bagiya border-0 shadow-sm">
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead class="table-light">
+        <tr>
+          <th>दिनांक</th>
+          <th>रसीद संख्या / ID</th>
+          <th>दानदाता विवरण</th>
+          <th>उद्देश्य / प्रोजेक्ट</th>
+          <th>माध्यम & UTR</th>
+          <th class="text-end">राशि (₹)</th>
+          <th>स्थिति</th>
+          <th class="text-center">कार्रवाई</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for d in page_obj %}
+        <tr>
+          <td class="small text-muted">{{ d.donation_date|date:"d M Y" }}</td>
+          <td>
+            <div class="fw-bold font-monospace small text-dark">{{ d.receipt_number }}</div>
+            <small class="text-muted font-monospace" style="font-size: 0.72rem;">{{ d.donation_id }}</small>
+          </td>
+          <td>
+            <div class="fw-bold text-bagiya-dark">{{ d.donor_name }}</div>
+            <small class="text-muted">{{ d.donor_phone|default:"-" }}</small>
+            {% if d.is_anonymous %}
+              <span class="badge bg-secondary-subtle text-secondary" style="font-size: 0.65rem;">गुप्त</span>
+            {% endif %}
+          </td>
+          <td>
+            <div class="small fw-semibold">{{ d.get_purpose_display|truncatewords:2 }}</div>
+            <small class="text-muted">{{ d.related_project.name|default:"सामान्य कोष" }}</small>
+          </td>
+          <td>
+            <span class="badge bg-light text-dark border">{{ d.get_payment_method_display }}</span>
+            {% if d.transaction_reference %}
+              <div class="font-monospace text-muted mt-1" style="font-size: 0.7rem;">{{ d.transaction_reference|truncatechars:18 }}</div>
+            {% endif %}
+          </td>
+          <td class="text-end fw-extrabold text-success font-monospace fs-6">
+            {{ d.amount|inr }}
+          </td>
+          <td>
+            {% if d.payment_status == 'CONFIRMED' %}
+              <span class="badge bg-success-subtle text-success border border-success">
+                <i class="bi bi-check-circle me-1"></i> सत्यापित
+              </span>
+            {% elif d.payment_status == 'PENDING' %}
+              <span class="badge bg-warning-subtle text-warning border border-warning">
+                <i class="bi bi-clock me-1"></i> प्रतीक्षित
+              </span>
+            {% else %}
+              <span class="badge bg-danger-subtle text-danger">{{ d.get_payment_status_display }}</span>
+            {% endif %}
+
+            {% if d.is_posted_to_ledger %}
+              <div class="text-success mt-1" style="font-size: 0.65rem;"><i class="bi bi-journal-check"></i> लेजर पोस्टेड</div>
+            {% endif %}
+          </td>
+          <td class="text-center">
+            <a href="{% url 'donations:dashboard_detail' d.donation_id %}" class="btn btn-outline-dark btn-sm" title="विवरण व रसीद">
+              <i class="bi bi-eye"></i>
+            </a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="8" class="text-center py-5 text-muted">
+            <i class="bi bi-inbox fs-2 d-block mb-2"></i>
+            कोई दान रिकॉर्ड नहीं मिला।
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% include 'includes/pagination.html' %}
+{% endblock %}
